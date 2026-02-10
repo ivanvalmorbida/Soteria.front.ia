@@ -320,13 +320,13 @@ const loadAuxiliaryData = async () => {
   try {
     const [estadosData, estadosCivisData, nacionalidadesData, profissoesData] = await Promise.all([
       auxiliaryService.getEstados(),
-      //auxiliaryService.getEstadosCivis(),
+      auxiliaryService.getEstadosCivis(),
       auxiliaryService.getNacionalidades(),
       auxiliaryService.getProfissoes()
     ])
     
     estados.value = estadosData
-    //estadosCivis.value = estadosCivisData
+    estadosCivis.value = estadosCivisData
     nacionalidades.value = nacionalidadesData
     profissoes.value = profissoesData
   } catch (error) {
