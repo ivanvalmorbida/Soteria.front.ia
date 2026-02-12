@@ -196,10 +196,15 @@
               <input v-model="telefone.telefone" type="text" placeholder="(00) 00000-0000" class="input-field flex-1" />
               <select v-model="telefone.tipo" class="input-field w-40">
                 <option :value="null">Tipo</option>
-                <option :value="1">Residencial</option>
-                <option :value="2">Celular</option>
-                <option :value="3">Comercial</option>
-                <option :value="4">Outro</option>
+                <option :value="1">📱 Celular</option>
+                <option :value="2">☎️ Fixo</option>
+                <option :value="3">💬 WhatsApp</option>
+                <option :value="4">✈️ Telegram</option>
+                <option :value="5">🏢 Comercial</option>
+                <option :value="6">🏠 Residencial</option>
+                <option :value="7">📞 Recado</option>
+                <option :value="8">📠 Fax</option>
+                <option :value="99">📞 Outro</option>
               </select>
               <input v-model="telefone.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
               <button type="button" @click="form.telefones.splice(index, 1)" class="btn-danger whitespace-nowrap">
@@ -212,18 +217,26 @@
           </div>
         </div>
 
-        <!-- E-mails -->
+        <!-- Endereços Eletrônicos -->
         <div class="card p-6">
-          <h2 class="text-xl font-bold text-dark-100 mb-6">E-mails</h2>
+          <h2 class="text-xl font-bold text-dark-100 mb-6">Endereços Eletrônicos</h2>
           <div class="space-y-3">
             <div v-for="(email, index) in form.enderecosEletronicos" :key="index" class="flex gap-3">
-              <input v-model="email.endereco" type="email" placeholder="email@exemplo.com" class="input-field flex-1" />
-              <select v-model="email.tipo" class="input-field w-40">
+              <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com" class="input-field flex-1" />
+              <select v-model="email.tipo" class="input-field w-48">
                 <option :value="null">Tipo</option>
-                <option :value="1">E-mail</option>
-                <option :value="2">Site</option>
-                <option :value="3">Rede Social</option>
-                <option :value="4">Outro</option>
+                <option :value="1">📧 E-mail</option>
+                <option :value="2">🌐 Website</option>
+                <option :value="3">📘 Facebook</option>
+                <option :value="4">📷 Instagram</option>
+                <option :value="5">💼 LinkedIn</option>
+                <option :value="6">🐦 Twitter</option>
+                <option :value="7">💬 WhatsApp</option>
+                <option :value="8">✈️ Telegram</option>
+                <option :value="9">📺 YouTube</option>
+                <option :value="10">🎵 TikTok</option>
+                <option :value="11">💻 GitHub</option>
+                <option :value="99">🔗 Outro</option>
               </select>
               <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
               <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger whitespace-nowrap">
@@ -231,7 +244,7 @@
               </button>
             </div>
             <button type="button" @click="addEmail" class="btn-outline w-full">
-              + Adicionar E-mail
+              + Adicionar Endereço Eletrônico
             </button>
           </div>
         </div>
