@@ -100,7 +100,7 @@
               <select v-model="form.nacionalidade" class="input-field">
                 <option :value="null">Selecione</option>
                 <option v-for="nac in nacionalidades" :key="nac.codigo" :value="nac.codigo">
-                  {{ nac.descricao }}
+                  {{ nac.pais }}
                 </option>
               </select>
             </div>
