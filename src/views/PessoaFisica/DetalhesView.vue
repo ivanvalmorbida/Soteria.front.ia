@@ -15,7 +15,8 @@
           </div>
           <router-link :to="`/pessoas-fisicas/${pessoa?.codigo}/editar`" class="btn-primary">
             <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             Editar
           </router-link>
@@ -43,7 +44,7 @@
             </div>
             <div>
               <label class="text-sm font-medium text-dark-300">Cadastrado em</label>
-              <p class="text-lg">{{ formatDate(pessoa.cadastro) }}</p>
+              <p class="text-lg">{{ formatDate(pessoa.cadastro) }} {{ formatTime(pessoa.cadastro) }}</p>
             </div>
           </div>
         </div>
@@ -73,7 +74,8 @@
               <div class="space-y-2">
                 <div v-for="tel in pessoa.telefones" :key="tel.codigo" class="flex items-center gap-3">
                   <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <span class="font-mono">{{ tel.telefone }}</span>
                   <span v-if="tel.descricao" class="text-dark-300">- {{ tel.descricao }}</span>
@@ -85,7 +87,8 @@
               <div class="space-y-2">
                 <div v-for="email in pessoa.enderecosEletronicos" :key="email.codigo" class="flex items-center gap-3">
                   <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <span>{{ email.endereco }}</span>
                   <span v-if="email.descricao" class="text-dark-300">- {{ email.descricao }}</span>
@@ -139,9 +142,14 @@ const formatCpf = (cpf) => {
 
 const formatDate = (date) => {
   if (!date) return '-'
-  return new Date(date).toLocaleDateString('pt-BR')
+  const [year, month, day] = date.split('T')[0].split('-');
+  return `${day}/${month}/${year}`;
 }
-
+const formatTime = (date) => {
+  const [datePart, timePart] = date.split('T');
+  const [hour, minute, second] = timePart.split(':');
+  return `${hour}:${minute}:${second}`;
+}
 const formatSexo = (sexo) => {
   const map = { M: 'Masculino', F: 'Feminino', O: 'Outro' }
   return map[sexo] || '-'

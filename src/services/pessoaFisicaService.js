@@ -7,7 +7,8 @@ export const pessoaFisicaService = {
   },
 
   async getById(codigo) {
-    const response = await api.get(`/pessoafisica/${codigo}`)
+    var response = await api.get(`/pessoafisica/${codigo}`)
+    response.data.nascimento = response.data.nascimento.split("T")[0] 
     return response.data
   },
 
