@@ -72,13 +72,13 @@
           </div>
         </div>
 
-        <!-- Contatos -->
+        <!-- Telefones -->
         <div class="card p-6">
-          <h2 class="text-xl font-bold text-dark-100 mb-6">Contatos</h2>
-          <div class="space-y-4">
-            <div v-for="(telefone, index) in form.telefones" :key="index" class="flex gap-4">
-              <input v-model="telefone.telefone" type="text" placeholder="(00) 0000-0000" class="input-field flex-1" />
-              <select v-model="telefone.tipo" class="input-field">
+          <h2 class="text-xl font-bold text-dark-100 mb-6">Telefones</h2>
+          <div class="space-y-3">
+            <div v-for="(telefone, index) in form.telefones" :key="index" class="flex gap-3">
+              <input v-model="telefone.telefone" type="text" placeholder="(00) 00000-0000" class="input-field flex-1" />
+              <select v-model="telefone.tipo" class="input-field w-40">
                 <option :value="null">Tipo</option>
                 <option :value="1">📱 Celular</option>
                 <option :value="2">☎️ Fixo</option>
@@ -91,23 +91,23 @@
                 <option :value="99">📞 Outro</option>
               </select>
               <input v-model="telefone.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
-              <button type="button" @click="form.telefones.splice(index, 1)" class="btn-danger">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+              <button type="button" @click="form.telefones.splice(index, 1)" class="btn-danger whitespace-nowrap">
+                Remover
               </button>
             </div>
-            <button type="button" @click="addTelefone" class="btn-outline w-full">+ Adicionar Telefone</button>
+            <button type="button" @click="addTelefone" class="btn-outline w-full">
+              + Adicionar Telefone
+            </button>
           </div>
         </div>
 
         <!-- Endereços Eletrônicos -->
         <div class="card p-6">
           <h2 class="text-xl font-bold text-dark-100 mb-6">Endereços Eletrônicos</h2>
-          <div class="space-y-4">
-            <div v-for="(email, index) in form.enderecosEletronicos" :key="index" class="flex gap-4">
+          <div class="space-y-3">
+            <div v-for="(email, index) in form.enderecosEletronicos" :key="index" class="flex gap-3">
               <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com" class="input-field flex-1" />
-              <select v-model="email.tipo" class="input-field">
+              <select v-model="email.tipo" class="input-field w-48">
                 <option :value="null">Tipo</option>
                 <option :value="1">📧 E-mail</option>
                 <option :value="2">🌐 Website</option>
@@ -123,13 +123,13 @@
                 <option :value="99">🔗 Outro</option>
               </select>
               <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
-              <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+              <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger whitespace-nowrap">
+                Remover
               </button>
             </div>
-            <button type="button" @click="addEmail" class="btn-outline w-full">+ Adicionar Endereço Eletrônico</button>
+            <button type="button" @click="addEmail" class="btn-outline w-full">
+              + Adicionar Endereço Eletrônico
+            </button>
           </div>
         </div>
 
@@ -197,10 +197,10 @@ const addEmail = () => {
 const loadPessoa = async () => {
   try {
     const data = await pessoaJuridicaService.getById(route.params.id)
-    form.value = { 
-      ...data, 
-      telefones: data.telefones || [{ telefone: '', tipo: null, descricao: '' }],
-      enderecosEletronicos: data.enderecosEletronicos || [{ endereco: '', tipo: null, descricao: '' }]
+    form.value = {
+      ...data,
+      telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
+      enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
   } catch (error) {
     toast.error('Erro ao carregar dados')
