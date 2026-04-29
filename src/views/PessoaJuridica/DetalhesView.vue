@@ -38,15 +38,6 @@
               <label class="text-sm font-medium text-dark-300">Inscrição Estadual</label>
               <p class="text-lg">{{ pessoa.inscricaoEstadual || '-' }}</p>
             </div>
-            <div v-if="pessoa.homepage">
-              <label class="text-sm font-medium text-dark-300">Site</label>
-              <a :href="pessoa.homepage" target="_blank" class="text-lg text-primary-600 hover:underline flex items-center gap-2">
-                {{ pessoa.homepage }}
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-            </div>
             <div v-if="pessoa.representanteNome">
               <label class="text-sm font-medium text-dark-300">Representante</label>
               <p class="text-lg">{{ pessoa.representanteNome }} <span class="text-dark-400">(#{{ pessoa.representante }})</span></p>

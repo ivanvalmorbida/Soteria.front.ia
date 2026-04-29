@@ -40,6 +40,11 @@ export const auxiliaryService = {
   async getProfissoes() {
     const response = await api.get('/cbo')
     return response.data
+  },
+
+  async buscarEnderecosPorNome(nome) {
+    const response = await api.get(`/Endereco/nome/${encodeURIComponent(nome)}`)
+    return response.data
   }
 }
 

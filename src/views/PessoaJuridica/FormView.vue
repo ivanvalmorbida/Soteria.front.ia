@@ -28,15 +28,22 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CNPJ</label>
-              <input v-model="form.cnpj" type="text" class="input-field" placeholder="00.000.000/0000-00" />
+              <input
+                v-model="form.cnpj"
+                type="text"
+                class="input-field"
+                :class="{ 'border-red-500 focus:ring-red-500': cnpjError }"
+                placeholder="00.000.000/0000-00"
+                maxlength="18"
+                @input="maskCnpj"
+                @blur="validateCnpjField"
+                style="text-transform: uppercase"
+              />
+              <p v-if="cnpjError" class="mt-1 text-sm text-red-500">{{ cnpjError }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Inscrição Estadual</label>
               <input v-model="form.inscricaoEstadual" type="text" class="input-field" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Homepage</label>
-              <input v-model="form.homepage" type="url" class="input-field" placeholder="https://" />
             </div>
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Representante (Código Pessoa)</label>
@@ -53,9 +60,43 @@
               <label class="block text-sm font-medium text-dark-200 mb-2">CEP</label>
               <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" />
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Endereço</label>
-              <input v-model="form.endereco" type="text" class="input-field" />
+              <input
+                v-model="enderecoNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onEnderecoInput"
+                @blur="fecharDropdownComAtraso"
+                @focus="abrirDropdownSeHaTermo"
+              />
+              <div v-if="enderecoLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showEnderecoDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="enderecoLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="enderecoSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhum endereço encontrado</li>
+                <li
+                  v-for="item in enderecoSugestoes"
+                  :key="item.id ?? item.codigo"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarEndereco(item)"
+                >
+                  {{ item.nome ?? item.descricao }}
+                </li>
+              </ul>
+              <p v-if="enderecoNome && !form.enderecoId && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Número</label>
@@ -161,6 +202,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import LayoutApp from '@/components/LayoutApp.vue'
 import pessoaJuridicaService from '@/services/pessoaJuridicaService'
+import auxiliaryService from '@/services/auxiliaryService'
 
 const router = useRouter()
 const route = useRoute()
@@ -168,16 +210,16 @@ const toast = useToast()
 
 const isEditing = computed(() => !!route.params.id)
 const saving = ref(false)
+const cnpjError = ref('')
 
 const form = ref({
   razaoSocial: '',
   nome: '',
   cnpj: '',
   inscricaoEstadual: '',
-  homepage: '',
   representante: null,
   cep: '',
-  endereco: '',
+  enderecoId: null,
   numero: '',
   bairro: '',
   complemento: '',
@@ -185,6 +227,65 @@ const form = ref({
   enderecosEletronicos: [{ endereco: '', tipo: null, descricao: '' }],
   obs: ''
 })
+
+// Autocomplete de endereço
+const enderecoNome = ref('')
+const enderecoSugestoes = ref([])
+const enderecoLoading = ref(false)
+const showEnderecoDropdown = ref(false)
+let enderecoDebounce = null
+
+const normalizarLista = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.data)) return data.data
+  if (Array.isArray(data?.items)) return data.items
+  if (data && typeof data === 'object') return [data]
+  return []
+}
+
+const onEnderecoInput = () => {
+  form.value.enderecoId = null
+  const termo = enderecoNome.value.trim()
+  clearTimeout(enderecoDebounce)
+  if (termo.length < 3) {
+    enderecoSugestoes.value = []
+    showEnderecoDropdown.value = false
+    enderecoLoading.value = false
+    return
+  }
+  showEnderecoDropdown.value = true
+  enderecoLoading.value = true
+  enderecoDebounce = setTimeout(async () => {
+    try {
+      const data = await auxiliaryService.buscarEnderecosPorNome(termo)
+      enderecoSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      enderecoSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar endereços')
+      }
+    } finally {
+      enderecoLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarEndereco = (item) => {
+  form.value.enderecoId = item.id ?? item.codigo
+  enderecoNome.value = item.nome ?? item.descricao ?? ''
+  enderecoSugestoes.value = []
+  showEnderecoDropdown.value = false
+}
+
+const fecharDropdownComAtraso = () => {
+  setTimeout(() => { showEnderecoDropdown.value = false }, 150)
+}
+
+const abrirDropdownSeHaTermo = () => {
+  if (enderecoNome.value.trim().length >= 3) {
+    showEnderecoDropdown.value = true
+  }
+}
 
 const addTelefone = () => {
   form.value.telefones.push({ telefone: '', tipo: null, descricao: '' })
@@ -194,14 +295,72 @@ const addEmail = () => {
   form.value.enderecosEletronicos.push({ endereco: '', tipo: null, descricao: '' })
 }
 
+const maskCnpj = () => {
+  // Strip formatting, uppercase, allow alphanumeric
+  const raw = form.value.cnpj.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+  // First 12 chars: alphanumeric; last 2: numeric only (check digits)
+  const main = raw.slice(0, 12)
+  const dv = raw.slice(12, 14).replace(/\D/g, '')
+  const combined = main + dv
+
+  let v = combined
+  if (combined.length > 12) v = combined.replace(/^(.{2})(.{3})(.{3})(.{4})(.{0,2})/, '$1.$2.$3/$4-$5')
+  else if (combined.length > 8) v = combined.replace(/^(.{2})(.{3})(.{3})(.{0,4})/, '$1.$2.$3/$4')
+  else if (combined.length > 5) v = combined.replace(/^(.{2})(.{3})(.{0,3})/, '$1.$2.$3')
+  else if (combined.length > 2) v = combined.replace(/^(.{2})(.{0,3})/, '$1.$2')
+  form.value.cnpj = v
+}
+
+const validateCnpjField = () => {
+  if (!form.value.cnpj) {
+    cnpjError.value = ''
+    return
+  }
+
+  const raw = form.value.cnpj.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+
+  if (raw.length !== 14) {
+    cnpjError.value = 'CNPJ inválido'
+    return
+  }
+
+  if (!/^\d{2}$/.test(raw.slice(12))) {
+    cnpjError.value = 'CNPJ inválido'
+    return
+  }
+
+  // charCode - 48: digits 0-9 → 0-9; letters A-Z → 17-42
+  const val = (c) => c.charCodeAt(0) - 48
+
+  // Weights for first DV (12 chars, right-to-left 2-9 cycling)
+  const w1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+  const sum1 = raw.slice(0, 12).split('').reduce((s, c, i) => s + val(c) * w1[i], 0)
+  const rem1 = sum1 % 11
+  const dv1 = rem1 <= 1 ? 0 : 11 - rem1
+
+  // Weights for second DV (13 chars including DV1)
+  const w2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+  const sum2 = (raw.slice(0, 12) + dv1).split('').reduce((s, c, i) => s + val(c) * w2[i], 0)
+  const rem2 = sum2 % 11
+  const dv2 = rem2 <= 1 ? 0 : 11 - rem2
+
+  if (raw.slice(12) !== `${dv1}${dv2}`) {
+    cnpjError.value = 'CNPJ inválido'
+  } else {
+    cnpjError.value = ''
+  }
+}
+
 const loadPessoa = async () => {
   try {
     const data = await pessoaJuridicaService.getById(route.params.id)
     form.value = {
       ...data,
+      enderecoId: data.enderecoId ?? null,
       telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
+    enderecoNome.value = data.enderecoNome ?? ''
   } catch (error) {
     toast.error('Erro ao carregar dados')
     router.push('/pessoas-juridicas')
@@ -209,6 +368,9 @@ const loadPessoa = async () => {
 }
 
 const handleSubmit = async () => {
+  validateCnpjField()
+  if (cnpjError.value) return
+
   try {
     saving.value = true
     const payload = {
