@@ -25,7 +25,7 @@
             
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CPF</label>
-              <input v-model="form.cpf" type="text" class="input-field" placeholder="000.000.000-00" />
+              <input v-model="form.cpf" type="text" class="input-field" placeholder="000.000.000-00" maxlength="14" @input="maskCpf" />
             </div>
             
             <div>
@@ -363,15 +363,25 @@ const onEstadoChange = async () => {
   }
 }
 
+const maskCpf = () => {
+  const raw = (form.value.cpf || '').replace(/\D/g, '').slice(0, 11)
+  let v = raw
+  if (raw.length > 9) v = raw.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2}).*/, '$1.$2.$3-$4')
+  else if (raw.length > 6) v = raw.replace(/^(\d{3})(\d{3})(\d{0,3}).*/, '$1.$2.$3')
+  else if (raw.length > 3) v = raw.replace(/^(\d{3})(\d{0,3}).*/, '$1.$2')
+  form.value.cpf = v
+}
+
 const loadPessoa = async () => {
   try {
     const data = await pessoaFisicaService.getById(route.params.id)
-    form.value = { 
+    form.value = {
       ...data,
       telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
-    
+    if (form.value.cpf) maskCpf()
+
     // Carregar cidades se tiver estado
     if (form.value.estado) {
       cidades.value = await auxiliaryService.getCidades(form.value.estado)
@@ -387,6 +397,7 @@ const handleSubmit = async () => {
     saving.value = true
     const payload = {
       ...form.value,
+      cpf: (form.value.cpf || '').replace(/\D/g, ''),
       telefones: form.value.telefones.filter(t => t.telefone?.trim()),
       enderecosEletronicos: form.value.enderecosEletronicos.filter(e => e.endereco?.trim())
     }

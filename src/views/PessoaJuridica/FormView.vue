@@ -53,7 +53,7 @@
         </div>
 
         <!-- Endereço -->
-        <div class="card p-6">
+        <div class="card p-6 relative z-30">
           <h2 class="text-xl font-bold text-dark-100 mb-6">Endereço</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -360,6 +360,7 @@ const loadPessoa = async () => {
       telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
+    if (form.value.cnpj) maskCnpj()
     enderecoNome.value = data.enderecoNome ?? ''
   } catch (error) {
     toast.error('Erro ao carregar dados')
@@ -375,6 +376,7 @@ const handleSubmit = async () => {
     saving.value = true
     const payload = {
       ...form.value,
+      cnpj: (form.value.cnpj || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase(),
       telefones: form.value.telefones.filter(t => t.telefone?.trim()),
       enderecosEletronicos: form.value.enderecosEletronicos.filter(e => e.endereco?.trim())
     }
