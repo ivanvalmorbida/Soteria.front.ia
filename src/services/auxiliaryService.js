@@ -45,6 +45,11 @@ export const auxiliaryService = {
   async buscarEnderecosPorNome(nome) {
     const response = await api.get(`/Endereco/nome/${encodeURIComponent(nome)}`)
     return response.data
+  },
+
+  async buscarBairrosPorNome(nome) {
+    const response = await api.get(`/Bairro/nome/${encodeURIComponent(nome)}`)
+    return response.data
   }
 }
 

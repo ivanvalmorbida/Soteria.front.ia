@@ -45,56 +45,30 @@
           </div>
         </div>
 
-        <!-- Documentos -->
+        <!-- Dados Complementares -->
         <div class="card p-6">
-          <h2 class="text-xl font-bold text-dark-100 mb-6">Documentos</h2>
+          <h2 class="text-xl font-bold text-dark-100 mb-6">Dados Complementares</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Identidade (RG)</label>
-              <input v-model="form.identidade" type="text" class="input-field" placeholder="00.000.000-0" />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Órgão Expedidor</label>
-              <input v-model="form.orgaoIdentidade" type="text" class="input-field" placeholder="SSP" />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">UF Identidade</label>
-              <select v-model="form.ufIdentidade" class="input-field">
+              <label class="block text-sm font-medium text-dark-200 mb-2">UF Nascimento</label>
+              <select v-model="form.ufNasc" class="input-field" @change="onUfNascChange">
                 <option :value="null">Selecione</option>
                 <option v-for="estado in estados" :key="estado.codigo" :value="estado.codigo">
                   {{ estado.sigla }} - {{ estado.nome }}
                 </option>
               </select>
             </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">CTPS</label>
-              <input v-model="form.ctps" type="text" class="input-field" placeholder="0000000" />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">PIS</label>
-              <input v-model="form.pis" type="text" class="input-field" placeholder="000.00000.00-0" />
-            </div>
-          </div>
-        </div>
 
-        <!-- Dados Complementares -->
-        <div class="card p-6">
-          <h2 class="text-xl font-bold text-dark-100 mb-6">Dados Complementares</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Estado Civil</label>
-              <select v-model="form.estadoCivil" class="input-field">
+              <label class="block text-sm font-medium text-dark-200 mb-2">Cidade Nascimento</label>
+              <select v-model="form.cidadeNasc" class="input-field" :disabled="!form.ufNasc">
                 <option :value="null">Selecione</option>
-                <option v-for="ec in estadosCivis" :key="ec.codigo" :value="ec.codigo">
-                  {{ ec.descricao }}
+                <option v-for="cidade in cidadesNasc" :key="cidade.codigo" :value="cidade.codigo">
+                  {{ cidade.nome }}
                 </option>
               </select>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Nacionalidade</label>
               <select v-model="form.nacionalidade" class="input-field">
@@ -104,7 +78,7 @@
                 </option>
               </select>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Profissão</label>
               <select v-model="form.profissao" class="input-field">
@@ -114,23 +88,18 @@
                 </option>
               </select>
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Cidade Nascimento</label>
-              <input v-model="form.cidadeNasc" type="number" class="input-field" placeholder="Código" />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">UF Nascimento</label>
-              <select v-model="form.ufNasc" class="input-field">
+              <label class="block text-sm font-medium text-dark-200 mb-2">Estado Civil</label>
+              <select v-model="form.estadoCivil" class="input-field">
                 <option :value="null">Selecione</option>
-                <option v-for="estado in estados" :key="estado.codigo" :value="estado.codigo">
-                  {{ estado.sigla }} - {{ estado.nome }}
+                <option v-for="ec in estadosCivis" :key="ec.codigo" :value="ec.codigo">
+                  {{ ec.descricao }}
                 </option>
               </select>
             </div>
-            
-            <div>
+
+            <div v-if="showConjuge">
               <label class="block text-sm font-medium text-dark-200 mb-2">Cônjuge</label>
               <input v-model="form.conjuge" type="number" class="input-field" placeholder="Código Pessoa" />
             </div>
@@ -138,14 +107,14 @@
         </div>
 
         <!-- Endereço -->
-        <div class="card p-6">
+        <div class="card p-6 relative z-30">
           <h2 class="text-xl font-bold text-dark-100 mb-6">Endereço</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CEP</label>
               <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Estado</label>
               <select v-model="form.estado" class="input-field" @change="onEstadoChange">
@@ -155,7 +124,7 @@
                 </option>
               </select>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Cidade</label>
               <select v-model="form.cidade" class="input-field" :disabled="!form.estado">
@@ -165,22 +134,90 @@
                 </option>
               </select>
             </div>
-            
-            <div class="md:col-span-2">
+
+            <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Endereço</label>
-              <input v-model="form.endereco" type="text" class="input-field" />
+              <input
+                v-model="enderecoNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onEnderecoInput"
+                @blur="fecharDropdownComAtraso"
+                @focus="abrirDropdownSeHaTermo"
+              />
+              <div v-if="enderecoLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showEnderecoDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="enderecoLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="enderecoSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhum endereço encontrado</li>
+                <li
+                  v-for="item in enderecoSugestoes"
+                  :key="item.id ?? item.codigo"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarEndereco(item)"
+                >
+                  {{ item.nome ?? item.descricao }}
+                </li>
+              </ul>
+              <p v-if="enderecoNome && !form.enderecoId && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Número</label>
               <input v-model="form.numero" type="text" class="input-field" />
             </div>
-            
-            <div>
+
+            <div class="relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Bairro</label>
-              <input v-model="form.bairro" type="text" class="input-field" />
+              <input
+                v-model="bairroNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onBairroInput"
+                @blur="fecharDropdownBairroComAtraso"
+                @focus="abrirDropdownBairroSeHaTermo"
+              />
+              <div v-if="bairroLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showBairroDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="bairroLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="bairroSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhum bairro encontrado</li>
+                <li
+                  v-for="item in bairroSugestoes"
+                  :key="item.id ?? item.codigo"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarBairro(item)"
+                >
+                  {{ item.nome ?? item.descricao }}
+                </li>
+              </ul>
+              <p v-if="bairroNome && !form.bairro && !showBairroDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
-            
+
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-dark-200 mb-2">Complemento</label>
               <input v-model="form.complemento" type="text" class="input-field" />
@@ -286,9 +323,12 @@ const toast = useToast()
 const isEditing = computed(() => !!route.params.id)
 const saving = ref(false)
 
+const showConjuge = computed(() => [4, 8].includes(form.value.estadoCivil))
+
 // Dados das APIs auxiliares
 const estados = ref([])
 const cidades = ref([])
+const cidadesNasc = ref([])
 const estadosCivis = ref([])
 const nacionalidades = ref([])
 const profissoes = ref([])
@@ -312,14 +352,124 @@ const form = ref({
   cep: '',
   estado: null,
   cidade: null,
-  bairro: '',
-  endereco: '',
+  bairro: null,
+  enderecoId: null,
   numero: '',
   complemento: '',
   telefones: [{ telefone: '', tipo: null, descricao: '' }],
   enderecosEletronicos: [{ endereco: '', tipo: null, descricao: '' }],
   obs: ''
 })
+
+// Autocomplete de endereço
+const enderecoNome = ref('')
+const enderecoSugestoes = ref([])
+const enderecoLoading = ref(false)
+const showEnderecoDropdown = ref(false)
+let enderecoDebounce = null
+
+// Autocomplete de bairro
+const bairroNome = ref('')
+const bairroSugestoes = ref([])
+const bairroLoading = ref(false)
+const showBairroDropdown = ref(false)
+let bairroDebounce = null
+
+const normalizarLista = (data) => {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.data)) return data.data
+  if (Array.isArray(data?.items)) return data.items
+  if (data && typeof data === 'object') return [data]
+  return []
+}
+
+const onEnderecoInput = () => {
+  form.value.enderecoId = null
+  const termo = enderecoNome.value.trim()
+  clearTimeout(enderecoDebounce)
+  if (termo.length < 3) {
+    enderecoSugestoes.value = []
+    showEnderecoDropdown.value = false
+    enderecoLoading.value = false
+    return
+  }
+  showEnderecoDropdown.value = true
+  enderecoLoading.value = true
+  enderecoDebounce = setTimeout(async () => {
+    try {
+      const data = await auxiliaryService.buscarEnderecosPorNome(termo)
+      enderecoSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      enderecoSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar endereços')
+      }
+    } finally {
+      enderecoLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarEndereco = (item) => {
+  form.value.enderecoId = item.id ?? item.codigo
+  enderecoNome.value = item.nome ?? item.descricao ?? ''
+  enderecoSugestoes.value = []
+  showEnderecoDropdown.value = false
+}
+
+const fecharDropdownComAtraso = () => {
+  setTimeout(() => { showEnderecoDropdown.value = false }, 150)
+}
+
+const abrirDropdownSeHaTermo = () => {
+  if (enderecoNome.value.trim().length >= 3) {
+    showEnderecoDropdown.value = true
+  }
+}
+
+const onBairroInput = () => {
+  form.value.bairro = null
+  const termo = bairroNome.value.trim()
+  clearTimeout(bairroDebounce)
+  if (termo.length < 3) {
+    bairroSugestoes.value = []
+    showBairroDropdown.value = false
+    bairroLoading.value = false
+    return
+  }
+  showBairroDropdown.value = true
+  bairroLoading.value = true
+  bairroDebounce = setTimeout(async () => {
+    try {
+      const data = await auxiliaryService.buscarBairrosPorNome(termo)
+      bairroSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      bairroSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar bairros')
+      }
+    } finally {
+      bairroLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarBairro = (item) => {
+  form.value.bairro = item.id ?? item.codigo
+  bairroNome.value = item.nome ?? item.descricao ?? ''
+  bairroSugestoes.value = []
+  showBairroDropdown.value = false
+}
+
+const fecharDropdownBairroComAtraso = () => {
+  setTimeout(() => { showBairroDropdown.value = false }, 150)
+}
+
+const abrirDropdownBairroSeHaTermo = () => {
+  if (bairroNome.value.trim().length >= 3) {
+    showBairroDropdown.value = true
+  }
+}
 
 const addTelefone = () => {
   form.value.telefones.push({ telefone: '', tipo: null, descricao: '' })
@@ -363,6 +513,21 @@ const onEstadoChange = async () => {
   }
 }
 
+const onUfNascChange = async () => {
+  if (form.value.ufNasc) {
+    try {
+      cidadesNasc.value = await auxiliaryService.getCidades(form.value.ufNasc)
+      form.value.cidadeNasc = null
+    } catch (error) {
+      console.error('Erro ao carregar cidades:', error)
+      toast.error('Erro ao carregar cidades')
+    }
+  } else {
+    cidadesNasc.value = []
+    form.value.cidadeNasc = null
+  }
+}
+
 const maskCpf = () => {
   const raw = (form.value.cpf || '').replace(/\D/g, '').slice(0, 11)
   let v = raw
@@ -377,14 +542,20 @@ const loadPessoa = async () => {
     const data = await pessoaFisicaService.getById(route.params.id)
     form.value = {
       ...data,
+      enderecoId: data.enderecoId ?? data.endereco ?? null,
       telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
     if (form.value.cpf) maskCpf()
+    enderecoNome.value = data.enderecoNome ?? ''
+    bairroNome.value = data.bairroNome ?? ''
 
     // Carregar cidades se tiver estado
     if (form.value.estado) {
       cidades.value = await auxiliaryService.getCidades(form.value.estado)
+    }
+    if (form.value.ufNasc) {
+      cidadesNasc.value = await auxiliaryService.getCidades(form.value.ufNasc)
     }
   } catch (error) {
     toast.error('Erro ao carregar dados')
