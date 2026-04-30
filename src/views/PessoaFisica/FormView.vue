@@ -80,16 +80,6 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Profissão</label>
-              <select v-model="form.profissao" class="input-field">
-                <option :value="null">Selecione</option>
-                <option v-for="prof in profissoes" :key="prof.codigo" :value="prof.codigo">
-                  {{ prof.codigo }} - {{ prof.descricao }}
-                </option>
-              </select>
-            </div>
-
-            <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Estado Civil</label>
               <select v-model="form.estadoCivil" class="input-field">
                 <option :value="null">Selecione</option>
@@ -99,9 +89,53 @@
               </select>
             </div>
 
-            <div v-if="showConjuge">
+            <div v-if="showConjuge" class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Cônjuge</label>
-              <input v-model="form.conjuge" type="number" class="input-field" placeholder="Código Pessoa" />
+              <input
+                v-model="conjugeNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onConjugeInput"
+                @blur="fecharDropdownConjugeComAtraso"
+                @focus="abrirDropdownConjugeSeHaTermo"
+              />
+              <div v-if="conjugeLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showConjugeDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="conjugeLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="conjugeSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhuma pessoa encontrada</li>
+                <li
+                  v-for="item in conjugeSugestoes"
+                  :key="item.codigo ?? item.id"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarConjuge(item)"
+                >
+                  {{ item.nome ?? item.descricao }}
+                </li>
+              </ul>
+              <p v-if="conjugeNome && !form.conjuge && !showConjugeDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-dark-200 mb-2">Profissão</label>
+              <select v-model="form.profissao" class="input-field">
+                <option :value="null">Selecione</option>
+                <option v-for="prof in profissoes" :key="prof.codigo" :value="prof.codigo">
+                  {{ prof.codigo }} - {{ prof.descricao }}
+                </option>
+              </select>
             </div>
           </div>
         </div>
@@ -179,7 +213,7 @@
               <input v-model="form.numero" type="text" class="input-field" />
             </div>
 
-            <div class="relative">
+            <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Bairro</label>
               <input
                 v-model="bairroNome"
@@ -218,7 +252,7 @@
               <p v-if="bairroNome && !form.bairro && !showBairroDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
 
-            <div class="md:col-span-2">
+            <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Complemento</label>
               <input v-model="form.complemento" type="text" class="input-field" />
             </div>
@@ -375,6 +409,13 @@ const bairroLoading = ref(false)
 const showBairroDropdown = ref(false)
 let bairroDebounce = null
 
+// Autocomplete de cônjuge
+const conjugeNome = ref('')
+const conjugeSugestoes = ref([])
+const conjugeLoading = ref(false)
+const showConjugeDropdown = ref(false)
+let conjugeDebounce = null
+
 const normalizarLista = (data) => {
   if (Array.isArray(data)) return data
   if (Array.isArray(data?.data)) return data.data
@@ -471,6 +512,50 @@ const abrirDropdownBairroSeHaTermo = () => {
   }
 }
 
+const onConjugeInput = () => {
+  form.value.conjuge = null
+  const termo = conjugeNome.value.trim()
+  clearTimeout(conjugeDebounce)
+  if (termo.length < 3) {
+    conjugeSugestoes.value = []
+    showConjugeDropdown.value = false
+    conjugeLoading.value = false
+    return
+  }
+  showConjugeDropdown.value = true
+  conjugeLoading.value = true
+  conjugeDebounce = setTimeout(async () => {
+    try {
+      const data = await pessoaFisicaService.buscarPorNome(termo)
+      conjugeSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      conjugeSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar pessoas')
+      }
+    } finally {
+      conjugeLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarConjuge = (item) => {
+  form.value.conjuge = item.codigo ?? item.id
+  conjugeNome.value = item.nome ?? item.descricao ?? ''
+  conjugeSugestoes.value = []
+  showConjugeDropdown.value = false
+}
+
+const fecharDropdownConjugeComAtraso = () => {
+  setTimeout(() => { showConjugeDropdown.value = false }, 150)
+}
+
+const abrirDropdownConjugeSeHaTermo = () => {
+  if (conjugeNome.value.trim().length >= 3) {
+    showConjugeDropdown.value = true
+  }
+}
+
 const addTelefone = () => {
   form.value.telefones.push({ telefone: '', tipo: null, descricao: '' })
 }
@@ -549,6 +634,15 @@ const loadPessoa = async () => {
     if (form.value.cpf) maskCpf()
     enderecoNome.value = data.enderecoNome ?? ''
     bairroNome.value = data.bairroNome ?? ''
+    conjugeNome.value = data.conjugeNome ?? ''
+    if (form.value.conjuge && !conjugeNome.value) {
+      try {
+        const conjugeData = await pessoaFisicaService.getById(form.value.conjuge)
+        conjugeNome.value = conjugeData?.nome ?? ''
+      } catch (err) {
+        // Mantém vazio se não conseguir buscar
+      }
+    }
 
     // Carregar cidades se tiver estado
     if (form.value.estado) {
@@ -572,7 +666,7 @@ const handleSubmit = async () => {
       telefones: form.value.telefones.filter(t => t.telefone?.trim()),
       enderecosEletronicos: form.value.enderecosEletronicos.filter(e => e.endereco?.trim())
     }
-    
+
     if (isEditing.value) {
       await pessoaFisicaService.update(route.params.id, payload)
       toast.success('Pessoa atualizada com sucesso')

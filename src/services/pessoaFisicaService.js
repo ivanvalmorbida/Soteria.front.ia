@@ -33,6 +33,11 @@ export const pessoaFisicaService = {
   async search(termo) {
     const response = await api.get(`/pessoa/search?termo=${termo}`)
     return response.data
+  },
+
+  async buscarPorNome(nome) {
+    const response = await api.get(`/PessoaFisica/nome/${encodeURIComponent(nome)}`)
+    return response.data
   }
 }
 
