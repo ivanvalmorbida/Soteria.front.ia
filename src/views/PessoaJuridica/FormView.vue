@@ -17,14 +17,23 @@
         <!-- Dados da Empresa -->
         <div class="card p-6">
           <h2 class="text-xl font-bold text-dark-100 mb-6">Dados da Empresa</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-3">
+              <label class="block text-sm font-medium text-dark-200 mb-2">Nome Fantasia *</label>
+              <input v-model="form.nome" type="text" required class="input-field" />
+            </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-dark-200 mb-2">Razão Social *</label>
               <input v-model="form.razaoSocial" type="text" required class="input-field" />
             </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-dark-200 mb-2">Nome Fantasia *</label>
-              <input v-model="form.nome" type="text" required class="input-field" />
+            <div>
+              <label class="block text-sm font-medium text-dark-200 mb-2">Atividade</label>
+              <select v-model="form.atividade" class="input-field">
+                <option :value="null">Selecione</option>
+                <option v-for="ativ in atividades" :key="ativ.codigo ?? ativ.id" :value="ativ.codigo ?? ativ.id">
+                  {{ ativ.subsetor }}
+                </option>
+              </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CNPJ</label>
@@ -41,11 +50,11 @@
               />
               <p v-if="cnpjError" class="mt-1 text-sm text-red-500">{{ cnpjError }}</p>
             </div>
-            <div>
+            <div class="md:col-span-2">
               <label class="block text-sm font-medium text-dark-200 mb-2">Inscrição Estadual</label>
               <input v-model="form.inscricaoEstadual" type="text" class="input-field" />
             </div>
-            <div class="md:col-span-2 relative">
+            <div class="md:col-span-3 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Representante</label>
               <input
                 v-model="representanteNome"
@@ -82,16 +91,6 @@
                 </li>
               </ul>
               <p v-if="representanteNome && !form.representante && !showRepresentanteDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-dark-200 mb-2">Atividade</label>
-              <select v-model="form.atividade" class="input-field">
-                <option :value="null">Selecione</option>
-                <option v-for="ativ in atividades" :key="ativ.codigo ?? ativ.id" :value="ativ.codigo ?? ativ.id">
-                  {{ ativ.subsetor }}
-                </option>
-              </select>
             </div>
           </div>
         </div>
