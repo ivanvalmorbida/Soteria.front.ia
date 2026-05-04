@@ -50,11 +50,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </router-link>
-                    <router-link :to="`/pessoas-juridicas/${pessoa.codigo}/editar`" class="p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors">
+                    <router-link :to="`/pessoas-juridicas/${pessoa.codigo}/editar`" class="p-2 rounded-lg hover:bg-primary-50 text-primary-600 transition-colors" title="Editar">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </router-link>
+                    <button
+                      @click="confirmDelete(pessoa)"
+                      class="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                      title="Excluir"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -77,6 +86,34 @@
         </router-link>
       </div>
     </div>
+
+    <teleport to="body">
+      <div
+        v-if="showDeleteModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click.self="showDeleteModal = false"
+      >
+        <div class="card p-6 max-w-md w-full animate-slide-up">
+          <h3 class="text-xl font-bold text-dark-100 mb-4">Confirmar exclusão</h3>
+          <p class="text-dark-300 mb-6">
+            Tem certeza que deseja excluir <strong>{{ personToDelete?.razaoSocial }}</strong>?
+            Esta ação não pode ser desfeita.
+          </p>
+          <div class="flex gap-3 justify-end">
+            <button @click="showDeleteModal = false" class="btn-secondary">
+              Cancelar
+            </button>
+            <button @click="handleDelete" class="btn-danger" :disabled="deleting">
+              <span v-if="!deleting">Excluir</span>
+              <span v-else class="flex items-center">
+                <div class="loader mr-2"></div>
+                Excluindo...
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </LayoutApp>
 </template>
 
@@ -90,6 +127,9 @@ import pessoaJuridicaService from '@/services/pessoaJuridicaService'
 const toast = useToast()
 const pessoas = ref([])
 const loading = ref(false)
+const showDeleteModal = ref(false)
+const personToDelete = ref(null)
+const deleting = ref(false)
 
 const loadPessoas = async () => {
   try {
@@ -100,6 +140,26 @@ const loadPessoas = async () => {
     console.error(error)
   } finally {
     loading.value = false
+  }
+}
+
+const confirmDelete = (pessoa) => {
+  personToDelete.value = pessoa
+  showDeleteModal.value = true
+}
+
+const handleDelete = async () => {
+  try {
+    deleting.value = true
+    await pessoaJuridicaService.delete(personToDelete.value.codigo)
+    toast.success('Empresa excluída com sucesso')
+    showDeleteModal.value = false
+    loadPessoas()
+  } catch (error) {
+    toast.error('Erro ao excluir empresa')
+    console.error(error)
+  } finally {
+    deleting.value = false
   }
 }
 

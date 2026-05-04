@@ -45,9 +45,43 @@
               <label class="block text-sm font-medium text-dark-200 mb-2">Inscrição Estadual</label>
               <input v-model="form.inscricaoEstadual" type="text" class="input-field" />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-dark-200 mb-2">Representante (Código Pessoa)</label>
-              <input v-model="form.representante" type="number" class="input-field" placeholder="Código da pessoa" />
+            <div class="md:col-span-2 relative">
+              <label class="block text-sm font-medium text-dark-200 mb-2">Representante</label>
+              <input
+                v-model="representanteNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onRepresentanteInput"
+                @blur="fecharDropdownRepresentanteComAtraso"
+                @focus="abrirDropdownRepresentanteSeHaTermo"
+              />
+              <div v-if="representanteLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showRepresentanteDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="representanteLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="representanteSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhuma pessoa encontrada</li>
+                <li
+                  v-for="item in representanteSugestoes"
+                  :key="item.codigo ?? item.id"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarRepresentante(item)"
+                >
+                  {{ item.nome ?? item.descricao }}
+                </li>
+              </ul>
+              <p v-if="representanteNome && !form.representante && !showRepresentanteDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
           </div>
         </div>
@@ -58,8 +92,29 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CEP</label>
-              <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" />
+              <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" maxlength="9" inputmode="numeric" @input="maskCep" />
             </div>
+
+            <div>
+              <label class="block text-sm font-medium text-dark-200 mb-2">Estado</label>
+              <select v-model="form.estado" class="input-field" @change="onEstadoChange">
+                <option :value="null">Selecione</option>
+                <option v-for="estado in estados" :key="estado.codigo" :value="estado.codigo">
+                  {{ estado.sigla }} - {{ estado.nome }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-dark-200 mb-2">Cidade</label>
+              <select v-model="form.cidade" class="input-field" :disabled="!form.estado">
+                <option :value="null">Selecione</option>
+                <option v-for="cidade in cidades" :key="cidade.codigo" :value="cidade.codigo">
+                  {{ cidade.nome }}
+                </option>
+              </select>
+            </div>
+
             <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Endereço</label>
               <input
@@ -98,14 +153,51 @@
               </ul>
               <p v-if="enderecoNome && !form.enderecoId && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Número</label>
               <input v-model="form.numero" type="text" class="input-field" />
             </div>
-            <div>
+
+            <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Bairro</label>
-              <input v-model="form.bairro" type="text" class="input-field" />
+              <input
+                v-model="bairroNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onBairroInput"
+                @blur="fecharDropdownBairroComAtraso"
+                @focus="abrirDropdownBairroSeHaTermo"
+              />
+              <div v-if="bairroLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showBairroDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="bairroLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="bairroSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhum bairro encontrado</li>
+                <li
+                  v-for="item in bairroSugestoes"
+                  :key="item.id ?? item.codigo"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarBairro(item)"
+                >
+                  {{ item.nome ?? item.descricao }}
+                </li>
+              </ul>
+              <p v-if="bairroNome && !form.bairro && !showBairroDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Complemento</label>
               <input v-model="form.complemento" type="text" class="input-field" />
@@ -202,6 +294,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import LayoutApp from '@/components/LayoutApp.vue'
 import pessoaJuridicaService from '@/services/pessoaJuridicaService'
+import pessoaFisicaService from '@/services/pessoaFisicaService'
 import auxiliaryService from '@/services/auxiliaryService'
 
 const router = useRouter()
@@ -212,6 +305,9 @@ const isEditing = computed(() => !!route.params.id)
 const saving = ref(false)
 const cnpjError = ref('')
 
+const estados = ref([])
+const cidades = ref([])
+
 const form = ref({
   razaoSocial: '',
   nome: '',
@@ -219,9 +315,11 @@ const form = ref({
   inscricaoEstadual: '',
   representante: null,
   cep: '',
+  estado: null,
+  cidade: null,
   enderecoId: null,
   numero: '',
-  bairro: '',
+  bairro: null,
   complemento: '',
   telefones: [{ telefone: '', tipo: null, descricao: '' }],
   enderecosEletronicos: [{ endereco: '', tipo: null, descricao: '' }],
@@ -234,6 +332,20 @@ const enderecoSugestoes = ref([])
 const enderecoLoading = ref(false)
 const showEnderecoDropdown = ref(false)
 let enderecoDebounce = null
+
+// Autocomplete de bairro
+const bairroNome = ref('')
+const bairroSugestoes = ref([])
+const bairroLoading = ref(false)
+const showBairroDropdown = ref(false)
+let bairroDebounce = null
+
+// Autocomplete de representante
+const representanteNome = ref('')
+const representanteSugestoes = ref([])
+const representanteLoading = ref(false)
+const showRepresentanteDropdown = ref(false)
+let representanteDebounce = null
 
 const normalizarLista = (data) => {
   if (Array.isArray(data)) return data
@@ -287,12 +399,129 @@ const abrirDropdownSeHaTermo = () => {
   }
 }
 
+const onBairroInput = () => {
+  form.value.bairro = null
+  const termo = bairroNome.value.trim()
+  clearTimeout(bairroDebounce)
+  if (termo.length < 3) {
+    bairroSugestoes.value = []
+    showBairroDropdown.value = false
+    bairroLoading.value = false
+    return
+  }
+  showBairroDropdown.value = true
+  bairroLoading.value = true
+  bairroDebounce = setTimeout(async () => {
+    try {
+      const data = await auxiliaryService.buscarBairrosPorNome(termo)
+      bairroSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      bairroSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar bairros')
+      }
+    } finally {
+      bairroLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarBairro = (item) => {
+  form.value.bairro = item.id ?? item.codigo
+  bairroNome.value = item.nome ?? item.descricao ?? ''
+  bairroSugestoes.value = []
+  showBairroDropdown.value = false
+}
+
+const fecharDropdownBairroComAtraso = () => {
+  setTimeout(() => { showBairroDropdown.value = false }, 150)
+}
+
+const abrirDropdownBairroSeHaTermo = () => {
+  if (bairroNome.value.trim().length >= 3) {
+    showBairroDropdown.value = true
+  }
+}
+
+const onEstadoChange = async () => {
+  if (form.value.estado) {
+    try {
+      cidades.value = await auxiliaryService.getCidades(form.value.estado)
+      form.value.cidade = null
+    } catch (error) {
+      console.error('Erro ao carregar cidades:', error)
+      toast.error('Erro ao carregar cidades')
+    }
+  } else {
+    cidades.value = []
+    form.value.cidade = null
+  }
+}
+
+const loadEstados = async () => {
+  try {
+    estados.value = await auxiliaryService.getEstados()
+  } catch (error) {
+    console.error('Erro ao carregar estados:', error)
+    toast.error('Erro ao carregar estados')
+  }
+}
+
+const onRepresentanteInput = () => {
+  form.value.representante = null
+  const termo = representanteNome.value.trim()
+  clearTimeout(representanteDebounce)
+  if (termo.length < 3) {
+    representanteSugestoes.value = []
+    showRepresentanteDropdown.value = false
+    representanteLoading.value = false
+    return
+  }
+  showRepresentanteDropdown.value = true
+  representanteLoading.value = true
+  representanteDebounce = setTimeout(async () => {
+    try {
+      const data = await pessoaFisicaService.buscarPorNome(termo)
+      representanteSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      representanteSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar pessoas')
+      }
+    } finally {
+      representanteLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarRepresentante = (item) => {
+  form.value.representante = item.codigo ?? item.id
+  representanteNome.value = item.nome ?? item.descricao ?? ''
+  representanteSugestoes.value = []
+  showRepresentanteDropdown.value = false
+}
+
+const fecharDropdownRepresentanteComAtraso = () => {
+  setTimeout(() => { showRepresentanteDropdown.value = false }, 150)
+}
+
+const abrirDropdownRepresentanteSeHaTermo = () => {
+  if (representanteNome.value.trim().length >= 3) {
+    showRepresentanteDropdown.value = true
+  }
+}
+
 const addTelefone = () => {
   form.value.telefones.push({ telefone: '', tipo: null, descricao: '' })
 }
 
 const addEmail = () => {
   form.value.enderecosEletronicos.push({ endereco: '', tipo: null, descricao: '' })
+}
+
+const maskCep = () => {
+  const raw = (form.value.cep || '').replace(/\D/g, '').slice(0, 8)
+  form.value.cep = raw.length > 5 ? raw.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2') : raw
 }
 
 const maskCnpj = () => {
@@ -361,7 +590,22 @@ const loadPessoa = async () => {
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
     if (form.value.cnpj) maskCnpj()
+    if (form.value.cep) maskCep()
     enderecoNome.value = data.enderecoNome ?? ''
+    bairroNome.value = data.bairroNome ?? ''
+    representanteNome.value = data.representanteNome ?? ''
+    if (form.value.representante && !representanteNome.value) {
+      try {
+        const representanteData = await pessoaFisicaService.getById(form.value.representante)
+        representanteNome.value = representanteData?.nome ?? ''
+      } catch (err) {
+        // Mantém vazio se não conseguir buscar
+      }
+    }
+
+    if (form.value.estado) {
+      cidades.value = await auxiliaryService.getCidades(form.value.estado)
+    }
   } catch (error) {
     toast.error('Erro ao carregar dados')
     router.push('/pessoas-juridicas')
@@ -377,6 +621,7 @@ const handleSubmit = async () => {
     const payload = {
       ...form.value,
       cnpj: (form.value.cnpj || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase(),
+      cep: (form.value.cep || '').replace(/\D/g, ''),
       telefones: form.value.telefones.filter(t => t.telefone?.trim()),
       enderecosEletronicos: form.value.enderecosEletronicos.filter(e => e.endereco?.trim())
     }
@@ -397,9 +642,10 @@ const handleSubmit = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await loadEstados()
   if (isEditing.value) {
-    loadPessoa()
+    await loadPessoa()
   }
 })
 </script>
