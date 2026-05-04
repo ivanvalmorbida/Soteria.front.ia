@@ -317,13 +317,13 @@
           <div class="space-y-3">
             <div v-for="(email, index) in form.enderecosEletronicos" :key="index" class="flex gap-3">
               <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com" class="input-field flex-1" />
-              <select v-model="email.tipo" class="input-field w-48">
+              <select v-model="email.tipo" class="input-field w-36">
                 <option :value="null">Tipo</option>
                 <option v-for="tipo in tiposEnderecoEletronico" :key="tipo.codigo ?? tipo.id" :value="tipo.codigo ?? tipo.id">
                   {{ tipo.icone ? `${tipo.icone} ${tipo.descricao ?? tipo.nome}` : (tipo.descricao ?? tipo.nome) }}
                 </option>
               </select>
-              <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
+              <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field w-36" />
               <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger whitespace-nowrap">
                 Remover
               </button>
@@ -681,9 +681,49 @@ const onUfNascChange = async () => {
   }
 }
 
+let ultimoCepConsultado = null
+
 const maskCep = () => {
   const raw = (form.value.cep || '').replace(/\D/g, '').slice(0, 8)
   form.value.cep = raw.length > 5 ? raw.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2') : raw
+  if (raw.length === 8 && raw !== ultimoCepConsultado) {
+    ultimoCepConsultado = raw
+    buscarCepEPreencher(raw)
+  } else if (raw.length < 8) {
+    ultimoCepConsultado = null
+  }
+}
+
+const buscarCepEPreencher = async (cep) => {
+  try {
+    const data = await auxiliaryService.buscarCep(cep)
+    if (!data) return
+
+    const estadoCodigo = data.estado ?? data.estadoCodigo ?? data.uf ?? null
+    if (estadoCodigo) {
+      form.value.estado = estadoCodigo
+      cidades.value = await auxiliaryService.getCidades(estadoCodigo)
+    }
+
+    const cidadeCodigo = data.cidade ?? data.cidadeCodigo ?? null
+    if (cidadeCodigo) form.value.cidade = cidadeCodigo
+
+    const bairroId = data.bairro ?? data.bairroId ?? data.bairroCodigo ?? null
+    if (bairroId) {
+      form.value.bairro = bairroId
+      bairroNome.value = data.bairroNome ?? data.bairroDescricao ?? bairroNome.value
+    }
+
+    const enderecoId = data.enderecoId ?? data.endereco ?? null
+    if (enderecoId) {
+      form.value.enderecoId = enderecoId
+      enderecoNome.value = data.enderecoNome ?? data.enderecoDescricao ?? data.logradouro ?? enderecoNome.value
+    }
+  } catch (err) {
+    if (err?.response?.status !== 404) {
+      toast.error('Erro ao buscar CEP')
+    }
+  }
 }
 
 const maskCpf = () => {
