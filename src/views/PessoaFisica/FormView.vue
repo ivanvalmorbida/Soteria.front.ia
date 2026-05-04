@@ -146,7 +146,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CEP</label>
-              <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" />
+              <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" maxlength="9" inputmode="numeric" @input="maskCep" />
             </div>
 
             <div>
@@ -613,6 +613,11 @@ const onUfNascChange = async () => {
   }
 }
 
+const maskCep = () => {
+  const raw = (form.value.cep || '').replace(/\D/g, '').slice(0, 8)
+  form.value.cep = raw.length > 5 ? raw.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2') : raw
+}
+
 const maskCpf = () => {
   const raw = (form.value.cpf || '').replace(/\D/g, '').slice(0, 11)
   let v = raw
@@ -632,6 +637,7 @@ const loadPessoa = async () => {
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
     if (form.value.cpf) maskCpf()
+    if (form.value.cep) maskCep()
     enderecoNome.value = data.enderecoNome ?? ''
     bairroNome.value = data.bairroNome ?? ''
     conjugeNome.value = data.conjugeNome ?? ''
@@ -663,6 +669,7 @@ const handleSubmit = async () => {
     const payload = {
       ...form.value,
       cpf: (form.value.cpf || '').replace(/\D/g, ''),
+      cep: (form.value.cep || '').replace(/\D/g, ''),
       telefones: form.value.telefones.filter(t => t.telefone?.trim()),
       enderecosEletronicos: form.value.enderecosEletronicos.filter(e => e.endereco?.trim())
     }
