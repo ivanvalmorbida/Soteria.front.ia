@@ -50,6 +50,16 @@ export const auxiliaryService = {
   async buscarBairrosPorNome(nome) {
     const response = await api.get(`/Bairro/nome/${encodeURIComponent(nome)}`)
     return response.data
+  },
+
+  async buscarProfissoesPorDescricao(descricao) {
+    const response = await api.get(`/cbo/descricao/${encodeURIComponent(descricao)}`)
+    return response.data
+  },
+
+  async getAtividadesSubsetor() {
+    const response = await api.get('/atividadeeconomicasubsetor')
+    return response.data
   }
 }
 

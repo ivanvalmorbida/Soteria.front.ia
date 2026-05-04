@@ -46,7 +46,7 @@
         </div>
 
         <!-- Dados Complementares -->
-        <div class="card p-6">
+        <div class="card p-6 relative z-40">
           <h2 class="text-xl font-bold text-dark-100 mb-6">Dados Complementares</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -128,14 +128,43 @@
               <p v-if="conjugeNome && !form.conjuge && !showConjugeDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
 
-            <div class="md:col-span-2">
+            <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Profissão</label>
-              <select v-model="form.profissao" class="input-field">
-                <option :value="null">Selecione</option>
-                <option v-for="prof in profissoes" :key="prof.codigo" :value="prof.codigo">
-                  {{ prof.descricao }} - {{ prof.codigo }}
-                </option>
-              </select>
+              <input
+                v-model="profissaoNome"
+                type="text"
+                class="input-field"
+                placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off"
+                @input="onProfissaoInput"
+                @blur="fecharDropdownProfissaoComAtraso"
+                @focus="abrirDropdownProfissaoSeHaTermo"
+              />
+              <div v-if="profissaoLoading" class="absolute right-3 top-9 text-dark-400">
+                <div class="loader w-4 h-4"></div>
+              </div>
+              <ul
+                v-if="showProfissaoDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
+              >
+                <li
+                  v-if="profissaoLoading"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Buscando...</li>
+                <li
+                  v-else-if="profissaoSugestoes.length === 0"
+                  class="px-4 py-2 text-dark-300 text-sm italic"
+                >Nenhuma profissão encontrada</li>
+                <li
+                  v-for="item in profissaoSugestoes"
+                  :key="item.codigo ?? item.id"
+                  class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
+                  @mousedown.prevent="selecionarProfissao(item)"
+                >
+                  {{ item.descricao ?? item.nome }} - {{ item.codigo }}
+                </li>
+              </ul>
+              <p v-if="profissaoNome && !form.profissao && !showProfissaoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
           </div>
         </div>
@@ -267,15 +296,9 @@
               <input v-model="telefone.telefone" type="text" placeholder="(00) 00000-0000" class="input-field flex-1" />
               <select v-model="telefone.tipo" class="input-field w-40">
                 <option :value="null">Tipo</option>
-                <option :value="1">📱 Celular</option>
-                <option :value="2">☎️ Fixo</option>
-                <option :value="3">💬 WhatsApp</option>
-                <option :value="4">✈️ Telegram</option>
-                <option :value="5">🏢 Comercial</option>
-                <option :value="6">🏠 Residencial</option>
-                <option :value="7">📞 Recado</option>
-                <option :value="8">📠 Fax</option>
-                <option :value="99">📞 Outro</option>
+                <option v-for="tipo in tiposTelefone" :key="tipo.codigo ?? tipo.id" :value="tipo.codigo ?? tipo.id">
+                  {{ tipo.icone ? `${tipo.icone} ${tipo.descricao ?? tipo.nome}` : (tipo.descricao ?? tipo.nome) }}
+                </option>
               </select>
               <input v-model="telefone.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
               <button type="button" @click="form.telefones.splice(index, 1)" class="btn-danger whitespace-nowrap">
@@ -296,18 +319,9 @@
               <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com" class="input-field flex-1" />
               <select v-model="email.tipo" class="input-field w-48">
                 <option :value="null">Tipo</option>
-                <option :value="1">📧 E-mail</option>
-                <option :value="2">🌐 Website</option>
-                <option :value="3">📘 Facebook</option>
-                <option :value="4">📷 Instagram</option>
-                <option :value="5">💼 LinkedIn</option>
-                <option :value="6">🐦 Twitter</option>
-                <option :value="7">💬 WhatsApp</option>
-                <option :value="8">✈️ Telegram</option>
-                <option :value="9">📺 YouTube</option>
-                <option :value="10">🎵 TikTok</option>
-                <option :value="11">💻 GitHub</option>
-                <option :value="99">🔗 Outro</option>
+                <option v-for="tipo in tiposEnderecoEletronico" :key="tipo.codigo ?? tipo.id" :value="tipo.codigo ?? tipo.id">
+                  {{ tipo.icone ? `${tipo.icone} ${tipo.descricao ?? tipo.nome}` : (tipo.descricao ?? tipo.nome) }}
+                </option>
               </select>
               <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
               <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger whitespace-nowrap">
@@ -365,7 +379,7 @@ const cidades = ref([])
 const cidadesNasc = ref([])
 const estadosCivis = ref([])
 const nacionalidades = ref([])
-const profissoes = ref([])
+const tiposEnderecoEletronico = ref([])
 
 const form = ref({
   nome: '',
@@ -415,6 +429,13 @@ const conjugeSugestoes = ref([])
 const conjugeLoading = ref(false)
 const showConjugeDropdown = ref(false)
 let conjugeDebounce = null
+
+// Autocomplete de profissão
+const profissaoNome = ref('')
+const profissaoSugestoes = ref([])
+const profissaoLoading = ref(false)
+const showProfissaoDropdown = ref(false)
+let profissaoDebounce = null
 
 const normalizarLista = (data) => {
   if (Array.isArray(data)) return data
@@ -556,6 +577,50 @@ const abrirDropdownConjugeSeHaTermo = () => {
   }
 }
 
+const onProfissaoInput = () => {
+  form.value.profissao = null
+  const termo = profissaoNome.value.trim()
+  clearTimeout(profissaoDebounce)
+  if (termo.length < 3) {
+    profissaoSugestoes.value = []
+    showProfissaoDropdown.value = false
+    profissaoLoading.value = false
+    return
+  }
+  showProfissaoDropdown.value = true
+  profissaoLoading.value = true
+  profissaoDebounce = setTimeout(async () => {
+    try {
+      const data = await auxiliaryService.buscarProfissoesPorDescricao(termo)
+      profissaoSugestoes.value = normalizarLista(data)
+    } catch (err) {
+      profissaoSugestoes.value = []
+      if (err?.response?.status !== 404) {
+        toast.error('Erro ao buscar profissões')
+      }
+    } finally {
+      profissaoLoading.value = false
+    }
+  }, 350)
+}
+
+const selecionarProfissao = (item) => {
+  form.value.profissao = item.codigo ?? item.id
+  profissaoNome.value = item.descricao ?? item.nome ?? ''
+  profissaoSugestoes.value = []
+  showProfissaoDropdown.value = false
+}
+
+const fecharDropdownProfissaoComAtraso = () => {
+  setTimeout(() => { showProfissaoDropdown.value = false }, 150)
+}
+
+const abrirDropdownProfissaoSeHaTermo = () => {
+  if (profissaoNome.value.trim().length >= 3) {
+    showProfissaoDropdown.value = true
+  }
+}
+
 const addTelefone = () => {
   form.value.telefones.push({ telefone: '', tipo: null, descricao: '' })
 }
@@ -566,17 +631,17 @@ const addEmail = () => {
 
 const loadAuxiliaryData = async () => {
   try {
-    const [estadosData, estadosCivisData, nacionalidadesData, profissoesData] = await Promise.all([
+    const [estadosData, estadosCivisData, nacionalidadesData, tiposEnderecoEletronicoData] = await Promise.all([
       auxiliaryService.getEstados(),
       auxiliaryService.getEstadosCivis(),
       auxiliaryService.getNacionalidades(),
-      auxiliaryService.getProfissoes()
+      auxiliaryService.getTiposEnderecoEletronico()
     ])
-    
+
     estados.value = estadosData
     estadosCivis.value = estadosCivisData
     nacionalidades.value = nacionalidadesData
-    profissoes.value = profissoesData
+    tiposEnderecoEletronico.value = tiposEnderecoEletronicoData
   } catch (error) {
     console.error('Erro ao carregar dados auxiliares:', error)
     toast.error('Erro ao carregar dados auxiliares')
@@ -641,6 +706,7 @@ const loadPessoa = async () => {
     enderecoNome.value = data.enderecoNome ?? ''
     bairroNome.value = data.bairroNome ?? ''
     conjugeNome.value = data.conjugeNome ?? ''
+    profissaoNome.value = data.profissaoNome ?? data.profissaoDescricao ?? ''
     if (form.value.conjuge && !conjugeNome.value) {
       try {
         const conjugeData = await pessoaFisicaService.getById(form.value.conjuge)

@@ -83,6 +83,16 @@
               </ul>
               <p v-if="representanteNome && !form.representante && !showRepresentanteDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-dark-200 mb-2">Atividade</label>
+              <select v-model="form.atividade" class="input-field">
+                <option :value="null">Selecione</option>
+                <option v-for="ativ in atividades" :key="ativ.codigo ?? ativ.id" :value="ativ.codigo ?? ativ.id">
+                  {{ ativ.subsetor }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -242,18 +252,9 @@
               <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com" class="input-field flex-1" />
               <select v-model="email.tipo" class="input-field w-48">
                 <option :value="null">Tipo</option>
-                <option :value="1">📧 E-mail</option>
-                <option :value="2">🌐 Website</option>
-                <option :value="3">📘 Facebook</option>
-                <option :value="4">📷 Instagram</option>
-                <option :value="5">💼 LinkedIn</option>
-                <option :value="6">🐦 Twitter</option>
-                <option :value="7">💬 WhatsApp</option>
-                <option :value="8">✈️ Telegram</option>
-                <option :value="9">📺 YouTube</option>
-                <option :value="10">🎵 TikTok</option>
-                <option :value="11">💻 GitHub</option>
-                <option :value="99">🔗 Outro</option>
+                <option v-for="tipo in tiposEnderecoEletronico" :key="tipo.codigo ?? tipo.id" :value="tipo.codigo ?? tipo.id">
+                  {{ tipo.icone ? `${tipo.icone} ${tipo.descricao ?? tipo.nome}` : (tipo.descricao ?? tipo.nome) }}
+                </option>
               </select>
               <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
               <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger whitespace-nowrap">
@@ -307,6 +308,8 @@ const cnpjError = ref('')
 
 const estados = ref([])
 const cidades = ref([])
+const atividades = ref([])
+const tiposEnderecoEletronico = ref([])
 
 const form = ref({
   razaoSocial: '',
@@ -314,6 +317,7 @@ const form = ref({
   cnpj: '',
   inscricaoEstadual: '',
   representante: null,
+  atividade: null,
   cep: '',
   estado: null,
   cidade: null,
@@ -464,6 +468,24 @@ const loadEstados = async () => {
   } catch (error) {
     console.error('Erro ao carregar estados:', error)
     toast.error('Erro ao carregar estados')
+  }
+}
+
+const loadAtividades = async () => {
+  try {
+    atividades.value = await auxiliaryService.getAtividadesSubsetor()
+  } catch (error) {
+    console.error('Erro ao carregar atividades:', error)
+    toast.error('Erro ao carregar atividades')
+  }
+}
+
+const loadTiposEnderecoEletronico = async () => {
+  try {
+    tiposEnderecoEletronico.value = await auxiliaryService.getTiposEnderecoEletronico()
+  } catch (error) {
+    console.error('Erro ao carregar tipos de endereço eletrônico:', error)
+    toast.error('Erro ao carregar tipos de endereço eletrônico')
   }
 }
 
@@ -643,7 +665,7 @@ const handleSubmit = async () => {
 }
 
 onMounted(async () => {
-  await loadEstados()
+  await Promise.all([loadEstados(), loadAtividades(), loadTiposEnderecoEletronico()])
   if (isEditing.value) {
     await loadPessoa()
   }
