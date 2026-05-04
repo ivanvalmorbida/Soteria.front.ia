@@ -223,15 +223,9 @@
               <input v-model="telefone.telefone" type="text" placeholder="(00) 00000-0000" class="input-field flex-1" />
               <select v-model="telefone.tipo" class="input-field w-40">
                 <option :value="null">Tipo</option>
-                <option :value="1">📱 Celular</option>
-                <option :value="2">☎️ Fixo</option>
-                <option :value="3">💬 WhatsApp</option>
-                <option :value="4">✈️ Telegram</option>
-                <option :value="5">🏢 Comercial</option>
-                <option :value="6">🏠 Residencial</option>
-                <option :value="7">📞 Recado</option>
-                <option :value="8">📠 Fax</option>
-                <option :value="99">📞 Outro</option>
+                <option v-for="tipo in tiposTelefone" :key="tipo.codigo ?? tipo.id" :value="tipo.codigo ?? tipo.id">
+                  {{ tipo.icone ? `${tipo.icone} ${tipo.descricao ?? tipo.nome}` : (tipo.descricao ?? tipo.nome) }}
+                </option>
               </select>
               <input v-model="telefone.descricao" type="text" placeholder="Descrição" class="input-field flex-1" />
               <button type="button" @click="form.telefones.splice(index, 1)" class="btn-danger whitespace-nowrap">
@@ -310,6 +304,7 @@ const estados = ref([])
 const cidades = ref([])
 const atividades = ref([])
 const tiposEnderecoEletronico = ref([])
+const tiposTelefone = ref([])
 
 const form = ref({
   razaoSocial: '',
@@ -489,6 +484,15 @@ const loadTiposEnderecoEletronico = async () => {
   }
 }
 
+const loadTiposTelefone = async () => {
+  try {
+    tiposTelefone.value = await auxiliaryService.getTiposTelefone()
+  } catch (error) {
+    console.error('Erro ao carregar tipos de telefone:', error)
+    toast.error('Erro ao carregar tipos de telefone')
+  }
+}
+
 const onRepresentanteInput = () => {
   form.value.representante = null
   const termo = representanteNome.value.trim()
@@ -665,7 +669,7 @@ const handleSubmit = async () => {
 }
 
 onMounted(async () => {
-  await Promise.all([loadEstados(), loadAtividades(), loadTiposEnderecoEletronico()])
+  await Promise.all([loadEstados(), loadAtividades(), loadTiposEnderecoEletronico(), loadTiposTelefone()])
   if (isEditing.value) {
     await loadPessoa()
   }

@@ -380,6 +380,7 @@ const cidadesNasc = ref([])
 const estadosCivis = ref([])
 const nacionalidades = ref([])
 const tiposEnderecoEletronico = ref([])
+const tiposTelefone = ref([])
 
 const form = ref({
   nome: '',
@@ -631,17 +632,19 @@ const addEmail = () => {
 
 const loadAuxiliaryData = async () => {
   try {
-    const [estadosData, estadosCivisData, nacionalidadesData, tiposEnderecoEletronicoData] = await Promise.all([
+    const [estadosData, estadosCivisData, nacionalidadesData, tiposEnderecoEletronicoData, tiposTelefoneData] = await Promise.all([
       auxiliaryService.getEstados(),
       auxiliaryService.getEstadosCivis(),
       auxiliaryService.getNacionalidades(),
-      auxiliaryService.getTiposEnderecoEletronico()
+      auxiliaryService.getTiposEnderecoEletronico(),
+      auxiliaryService.getTiposTelefone()
     ])
 
     estados.value = estadosData
     estadosCivis.value = estadosCivisData
     nacionalidades.value = nacionalidadesData
     tiposEnderecoEletronico.value = tiposEnderecoEletronicoData
+    tiposTelefone.value = tiposTelefoneData
   } catch (error) {
     console.error('Erro ao carregar dados auxiliares:', error)
     toast.error('Erro ao carregar dados auxiliares')
