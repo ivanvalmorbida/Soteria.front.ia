@@ -133,7 +133,7 @@
               <select v-model="form.profissao" class="input-field">
                 <option :value="null">Selecione</option>
                 <option v-for="prof in profissoes" :key="prof.codigo" :value="prof.codigo">
-                  {{ prof.codigo }} - {{ prof.descricao }}
+                  {{ prof.descricao }} - {{ prof.codigo }}
                 </option>
               </select>
             </div>
@@ -670,6 +670,7 @@ const handleSubmit = async () => {
       ...form.value,
       cpf: (form.value.cpf || '').replace(/\D/g, ''),
       cep: (form.value.cep || '').replace(/\D/g, ''),
+      nascimento: form.value.nascimento || null,
       telefones: form.value.telefones.filter(t => t.telefone?.trim()),
       enderecosEletronicos: form.value.enderecosEletronicos.filter(e => e.endereco?.trim())
     }
