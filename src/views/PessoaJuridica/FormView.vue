@@ -160,7 +160,7 @@
                   {{ item.nome ?? item.descricao }}
                 </li>
               </ul>
-              <p v-if="enderecoNome && !form.enderecoId && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
+              <p v-if="enderecoNome && !form.endereco && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
             </div>
 
             <div>
@@ -315,7 +315,7 @@ const form = ref({
   cep: '',
   estado: null,
   cidade: null,
-  enderecoId: null,
+  endereco: null,
   numero: '',
   bairro: null,
   complemento: '',
@@ -354,7 +354,7 @@ const normalizarLista = (data) => {
 }
 
 const onEnderecoInput = () => {
-  form.value.enderecoId = null
+  form.value.endereco = null
   const termo = enderecoNome.value.trim()
   clearTimeout(enderecoDebounce)
   if (termo.length < 3) {
@@ -381,7 +381,7 @@ const onEnderecoInput = () => {
 }
 
 const selecionarEndereco = (item) => {
-  form.value.enderecoId = item.id ?? item.codigo
+  form.value.endereco = item.id ?? item.codigo
   enderecoNome.value = item.nome ?? item.descricao ?? ''
   enderecoSugestoes.value = []
   showEnderecoDropdown.value = false
@@ -562,24 +562,24 @@ const buscarCepEPreencher = async (cep) => {
     const data = await auxiliaryService.buscarCep(cep)
     if (!data) return
 
-    const estadoCodigo = data.estado ?? data.estadoCodigo ?? data.uf ?? null
-    if (estadoCodigo) {
-      form.value.estado = estadoCodigo
-      cidades.value = await auxiliaryService.getCidades(estadoCodigo)
+    const estado = data.estado ?? null
+    if (estado) {
+      form.value.estado = estado
+      cidades.value = await auxiliaryService.getCidades(estado)
     }
 
-    const cidadeCodigo = data.cidade ?? data.cidadeCodigo ?? null
-    if (cidadeCodigo) form.value.cidade = cidadeCodigo
+    const cidade = data.cidade ?? null
+    if (cidade) form.value.cidade = cidade
 
-    const bairroId = data.bairro ?? data.bairroId ?? data.bairroCodigo ?? null
-    if (bairroId) {
-      form.value.bairro = bairroId
-      bairroNome.value = data.bairroNome ?? data.bairroDescricao ?? bairroNome.value
+    const bairro = data.bairro ?? null
+    if (bairro) {
+      form.value.bairro = bairro
+      bairroNome.value = data.bairroNome ?? bairroNome.value
     }
 
-    const enderecoId = data.enderecoId ?? data.endereco ?? null
-    if (enderecoId) {
-      form.value.enderecoId = enderecoId
+    const endereco = data.endereco ?? null
+    if (endereco) {
+      form.value.endereco = endereco
       enderecoNome.value = data.enderecoNome ?? data.enderecoDescricao ?? data.logradouro ?? enderecoNome.value
     }
   } catch (err) {
@@ -650,7 +650,7 @@ const loadPessoa = async () => {
     const data = await pessoaJuridicaService.getById(route.params.id)
     form.value = {
       ...data,
-      enderecoId: data.enderecoId ?? null,
+      endereco: data.endereco ?? null,
       telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }

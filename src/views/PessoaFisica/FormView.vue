@@ -22,17 +22,18 @@
               <label class="block text-sm font-medium text-dark-200 mb-2">Nome Completo *</label>
               <input v-model="form.nome" type="text" required class="input-field" />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CPF</label>
-              <input v-model="form.cpf" type="text" class="input-field" placeholder="000.000.000-00" maxlength="14" @input="maskCpf" />
+              <input v-model="form.cpf" type="text" class="input-field" placeholder="000.000.000-00" maxlength="14"
+                @input="maskCpf" />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Data de Nascimento</label>
               <input v-model="form.nascimento" type="date" class="input-field" />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">Sexo *</label>
               <select v-model="form.sexo" class="input-field" required>
@@ -91,80 +92,48 @@
 
             <div v-if="showConjuge" class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Cônjuge</label>
-              <input
-                v-model="conjugeNome"
-                type="text"
-                class="input-field"
-                placeholder="Digite pelo menos 3 letras..."
-                autocomplete="off"
-                @input="onConjugeInput"
-                @blur="fecharDropdownConjugeComAtraso"
-                @focus="abrirDropdownConjugeSeHaTermo"
-              />
+              <input v-model="conjugeNome" type="text" class="input-field" placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off" @input="onConjugeInput" @blur="fecharDropdownConjugeComAtraso"
+                @focus="abrirDropdownConjugeSeHaTermo" />
               <div v-if="conjugeLoading" class="absolute right-3 top-9 text-dark-400">
                 <div class="loader w-4 h-4"></div>
               </div>
-              <ul
-                v-if="showConjugeDropdown"
-                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
-              >
-                <li
-                  v-if="conjugeLoading"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Buscando...</li>
-                <li
-                  v-else-if="conjugeSugestoes.length === 0"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Nenhuma pessoa encontrada</li>
-                <li
-                  v-for="item in conjugeSugestoes"
-                  :key="item.codigo ?? item.id"
+              <ul v-if="showConjugeDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                <li v-if="conjugeLoading" class="px-4 py-2 text-dark-300 text-sm italic">Buscando...</li>
+                <li v-else-if="conjugeSugestoes.length === 0" class="px-4 py-2 text-dark-300 text-sm italic">Nenhuma
+                  pessoa encontrada</li>
+                <li v-for="item in conjugeSugestoes" :key="item.codigo ?? item.id"
                   class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
-                  @mousedown.prevent="selecionarConjuge(item)"
-                >
+                  @mousedown.prevent="selecionarConjuge(item)">
                   {{ item.nome ?? item.descricao }}
                 </li>
               </ul>
-              <p v-if="conjugeNome && !form.conjuge && !showConjugeDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
+              <p v-if="conjugeNome && !form.conjuge && !showConjugeDropdown" class="mt-1 text-xs text-dark-400">
+                Selecione uma opção da lista</p>
             </div>
 
             <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Profissão</label>
-              <input
-                v-model="profissaoNome"
-                type="text"
-                class="input-field"
-                placeholder="Digite pelo menos 3 letras..."
-                autocomplete="off"
-                @input="onProfissaoInput"
-                @blur="fecharDropdownProfissaoComAtraso"
-                @focus="abrirDropdownProfissaoSeHaTermo"
-              />
+              <input v-model="profissaoNome" type="text" class="input-field" placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off" @input="onProfissaoInput" @blur="fecharDropdownProfissaoComAtraso"
+                @focus="abrirDropdownProfissaoSeHaTermo" />
               <div v-if="profissaoLoading" class="absolute right-3 top-9 text-dark-400">
                 <div class="loader w-4 h-4"></div>
               </div>
-              <ul
-                v-if="showProfissaoDropdown"
-                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
-              >
-                <li
-                  v-if="profissaoLoading"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Buscando...</li>
-                <li
-                  v-else-if="profissaoSugestoes.length === 0"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Nenhuma profissão encontrada</li>
-                <li
-                  v-for="item in profissaoSugestoes"
-                  :key="item.codigo ?? item.id"
+              <ul v-if="showProfissaoDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                <li v-if="profissaoLoading" class="px-4 py-2 text-dark-300 text-sm italic">Buscando...</li>
+                <li v-else-if="profissaoSugestoes.length === 0" class="px-4 py-2 text-dark-300 text-sm italic">Nenhuma
+                  profissão encontrada</li>
+                <li v-for="item in profissaoSugestoes" :key="item.codigo ?? item.id"
                   class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
-                  @mousedown.prevent="selecionarProfissao(item)"
-                >
+                  @mousedown.prevent="selecionarProfissao(item)">
                   {{ item.descricao ?? item.nome }} - {{ item.codigo }}
                 </li>
               </ul>
-              <p v-if="profissaoNome && !form.profissao && !showProfissaoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
+              <p v-if="profissaoNome && !form.profissao && !showProfissaoDropdown" class="mt-1 text-xs text-dark-400">
+                Selecione uma opção da lista</p>
             </div>
           </div>
         </div>
@@ -175,7 +144,8 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-dark-200 mb-2">CEP</label>
-              <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" maxlength="9" inputmode="numeric" @input="maskCep" />
+              <input v-model="form.cep" type="text" class="input-field" placeholder="00000-000" maxlength="9"
+                inputmode="numeric" @input="maskCep" />
             </div>
 
             <div>
@@ -200,41 +170,25 @@
 
             <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Endereço</label>
-              <input
-                v-model="enderecoNome"
-                type="text"
-                class="input-field"
-                placeholder="Digite pelo menos 3 letras..."
-                autocomplete="off"
-                @input="onEnderecoInput"
-                @blur="fecharDropdownComAtraso"
-                @focus="abrirDropdownSeHaTermo"
-              />
+              <input v-model="enderecoNome" type="text" class="input-field" placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off" @input="onEnderecoInput" @blur="fecharDropdownComAtraso"
+                @focus="abrirDropdownSeHaTermo" />
               <div v-if="enderecoLoading" class="absolute right-3 top-9 text-dark-400">
                 <div class="loader w-4 h-4"></div>
               </div>
-              <ul
-                v-if="showEnderecoDropdown"
-                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
-              >
-                <li
-                  v-if="enderecoLoading"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Buscando...</li>
-                <li
-                  v-else-if="enderecoSugestoes.length === 0"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Nenhum endereço encontrado</li>
-                <li
-                  v-for="item in enderecoSugestoes"
-                  :key="item.id ?? item.codigo"
+              <ul v-if="showEnderecoDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                <li v-if="enderecoLoading" class="px-4 py-2 text-dark-300 text-sm italic">Buscando...</li>
+                <li v-else-if="enderecoSugestoes.length === 0" class="px-4 py-2 text-dark-300 text-sm italic">Nenhum
+                  endereço encontrado</li>
+                <li v-for="item in enderecoSugestoes" :key="item.id ?? item.codigo"
                   class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
-                  @mousedown.prevent="selecionarEndereco(item)"
-                >
+                  @mousedown.prevent="selecionarEndereco(item)">
                   {{ item.nome ?? item.descricao }}
                 </li>
               </ul>
-              <p v-if="enderecoNome && !form.enderecoId && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
+              <p v-if="enderecoNome && !form.endereco && !showEnderecoDropdown" class="mt-1 text-xs text-dark-400">
+                Selecione uma opção da lista</p>
             </div>
 
             <div>
@@ -244,41 +198,25 @@
 
             <div class="md:col-span-2 relative">
               <label class="block text-sm font-medium text-dark-200 mb-2">Bairro</label>
-              <input
-                v-model="bairroNome"
-                type="text"
-                class="input-field"
-                placeholder="Digite pelo menos 3 letras..."
-                autocomplete="off"
-                @input="onBairroInput"
-                @blur="fecharDropdownBairroComAtraso"
-                @focus="abrirDropdownBairroSeHaTermo"
-              />
+              <input v-model="bairroNome" type="text" class="input-field" placeholder="Digite pelo menos 3 letras..."
+                autocomplete="off" @input="onBairroInput" @blur="fecharDropdownBairroComAtraso"
+                @focus="abrirDropdownBairroSeHaTermo" />
               <div v-if="bairroLoading" class="absolute right-3 top-9 text-dark-400">
                 <div class="loader w-4 h-4"></div>
               </div>
-              <ul
-                v-if="showBairroDropdown"
-                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto"
-              >
-                <li
-                  v-if="bairroLoading"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Buscando...</li>
-                <li
-                  v-else-if="bairroSugestoes.length === 0"
-                  class="px-4 py-2 text-dark-300 text-sm italic"
-                >Nenhum bairro encontrado</li>
-                <li
-                  v-for="item in bairroSugestoes"
-                  :key="item.id ?? item.codigo"
+              <ul v-if="showBairroDropdown"
+                class="absolute z-50 w-full mt-1 bg-dark-700 border border-dark-600 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                <li v-if="bairroLoading" class="px-4 py-2 text-dark-300 text-sm italic">Buscando...</li>
+                <li v-else-if="bairroSugestoes.length === 0" class="px-4 py-2 text-dark-300 text-sm italic">Nenhum
+                  bairro encontrado</li>
+                <li v-for="item in bairroSugestoes" :key="item.id ?? item.codigo"
                   class="px-4 py-2 cursor-pointer hover:bg-dark-600 text-dark-100 text-sm"
-                  @mousedown.prevent="selecionarBairro(item)"
-                >
+                  @mousedown.prevent="selecionarBairro(item)">
                   {{ item.nome ?? item.descricao }}
                 </li>
               </ul>
-              <p v-if="bairroNome && !form.bairro && !showBairroDropdown" class="mt-1 text-xs text-dark-400">Selecione uma opção da lista</p>
+              <p v-if="bairroNome && !form.bairro && !showBairroDropdown" class="mt-1 text-xs text-dark-400">Selecione
+                uma opção da lista</p>
             </div>
 
             <div>
@@ -316,15 +254,18 @@
           <h2 class="text-xl font-bold text-dark-100 mb-6">Endereços Eletrônicos</h2>
           <div class="space-y-3">
             <div v-for="(email, index) in form.enderecosEletronicos" :key="index" class="flex gap-3">
-              <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com" class="input-field flex-1" />
+              <input v-model="email.endereco" type="text" placeholder="exemplo@email.com ou https://site.com"
+                class="input-field flex-1" />
               <select v-model="email.tipo" class="input-field w-36">
                 <option :value="null">Tipo</option>
-                <option v-for="tipo in tiposEnderecoEletronico" :key="tipo.codigo ?? tipo.id" :value="tipo.codigo ?? tipo.id">
+                <option v-for="tipo in tiposEnderecoEletronico" :key="tipo.codigo ?? tipo.id"
+                  :value="tipo.codigo ?? tipo.id">
                   {{ tipo.icone ? `${tipo.icone} ${tipo.descricao ?? tipo.nome}` : (tipo.descricao ?? tipo.nome) }}
                 </option>
               </select>
               <input v-model="email.descricao" type="text" placeholder="Descrição" class="input-field w-36" />
-              <button type="button" @click="form.enderecosEletronicos.splice(index, 1)" class="btn-danger whitespace-nowrap">
+              <button type="button" @click="form.enderecosEletronicos.splice(index, 1)"
+                class="btn-danger whitespace-nowrap">
                 Remover
               </button>
             </div>
@@ -385,16 +326,11 @@ const tiposTelefone = ref([])
 const form = ref({
   nome: '',
   cpf: '',
-  identidade: '',
-  orgaoIdentidade: '',
-  ufIdentidade: null,
   nascimento: '',
   sexo: '',
   estadoCivil: null,
   nacionalidade: null,
   profissao: null,
-  ctps: '',
-  pis: '',
   cidadeNasc: null,
   ufNasc: null,
   conjuge: null,
@@ -402,7 +338,7 @@ const form = ref({
   estado: null,
   cidade: null,
   bairro: null,
-  enderecoId: null,
+  endereco: null,
   numero: '',
   complemento: '',
   telefones: [{ telefone: '', tipo: null, descricao: '' }],
@@ -447,7 +383,7 @@ const normalizarLista = (data) => {
 }
 
 const onEnderecoInput = () => {
-  form.value.enderecoId = null
+  form.value.endereco = null
   const termo = enderecoNome.value.trim()
   clearTimeout(enderecoDebounce)
   if (termo.length < 3) {
@@ -474,7 +410,7 @@ const onEnderecoInput = () => {
 }
 
 const selecionarEndereco = (item) => {
-  form.value.enderecoId = item.id ?? item.codigo
+  form.value.endereco = item.id ?? item.codigo
   enderecoNome.value = item.nome ?? item.descricao ?? ''
   enderecoSugestoes.value = []
   showEnderecoDropdown.value = false
@@ -699,25 +635,25 @@ const buscarCepEPreencher = async (cep) => {
     const data = await auxiliaryService.buscarCep(cep)
     if (!data) return
 
-    const estadoCodigo = data.estado ?? data.estadoCodigo ?? data.uf ?? null
-    if (estadoCodigo) {
-      form.value.estado = estadoCodigo
-      cidades.value = await auxiliaryService.getCidades(estadoCodigo)
+    const estado = data.estado ?? null
+    if (estado) {
+      form.value.estado = estado
+      cidades.value = await auxiliaryService.getCidades(estado)
     }
 
-    const cidadeCodigo = data.cidade ?? data.cidadeCodigo ?? null
-    if (cidadeCodigo) form.value.cidade = cidadeCodigo
+    const cidade = data.cidade ?? null
+    if (cidade) form.value.cidade = cidade
 
-    const bairroId = data.bairro ?? data.bairroId ?? data.bairroCodigo ?? null
-    if (bairroId) {
-      form.value.bairro = bairroId
-      bairroNome.value = data.bairroNome ?? data.bairroDescricao ?? bairroNome.value
+    const bairro = data.bairro ?? null
+    if (bairro) {
+      form.value.bairro = bairro
+      bairroNome.value = data.bairroNome ?? bairroNome.value
     }
 
-    const enderecoId = data.enderecoId ?? data.endereco ?? null
-    if (enderecoId) {
-      form.value.enderecoId = enderecoId
-      enderecoNome.value = data.enderecoNome ?? data.enderecoDescricao ?? data.logradouro ?? enderecoNome.value
+    const endereco = data.endereco ?? null
+    if (endereco) {
+      form.value.endereco = endereco
+      enderecoNome.value = data.enderecoNome ?? enderecoNome.value
     }
   } catch (err) {
     if (err?.response?.status !== 404) {
@@ -740,7 +676,7 @@ const loadPessoa = async () => {
     const data = await pessoaFisicaService.getById(route.params.id)
     form.value = {
       ...data,
-      enderecoId: data.enderecoId ?? data.endereco ?? null,
+      endereco: data.endereco ?? null,
       telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
       enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
     }
@@ -802,7 +738,7 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   await loadAuxiliaryData()
-  
+
   if (isEditing.value) {
     await loadPessoa()
   }
