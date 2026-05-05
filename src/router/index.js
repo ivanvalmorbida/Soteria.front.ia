@@ -69,6 +69,92 @@ const router = createRouter({
       name: 'pessoa-juridica-editar',
       component: () => import('../views/PessoaJuridica/FormView.vue'),
       meta: { title: 'Editar Pessoa Jurídica', requiresAuth: true }
+    },
+
+    // Centro de Custo
+    {
+      path: '/centros-custo',
+      name: 'centros-custo',
+      component: () => import('../views/CentroCusto/ListaView.vue'),
+      meta: { title: 'Centros de Custo', requiresAuth: true }
+    },
+    {
+      path: '/centros-custo/novo',
+      name: 'centro-custo-novo',
+      component: () => import('../views/CentroCusto/FormView.vue'),
+      meta: { title: 'Novo Centro de Custo', requiresAuth: true }
+    },
+    {
+      path: '/centros-custo/:id/editar',
+      name: 'centro-custo-editar',
+      component: () => import('../views/CentroCusto/FormView.vue'),
+      meta: { title: 'Editar Centro de Custo', requiresAuth: true }
+    },
+
+    // Histórico Contábil
+    {
+      path: '/historicos-contabeis',
+      name: 'historicos-contabeis',
+      component: () => import('../views/HistoricoContabil/ListaView.vue'),
+      meta: { title: 'Históricos Contábeis', requiresAuth: true }
+    },
+    {
+      path: '/historicos-contabeis/novo',
+      name: 'historico-contabil-novo',
+      component: () => import('../views/HistoricoContabil/FormView.vue'),
+      meta: { title: 'Novo Histórico Contábil', requiresAuth: true }
+    },
+    {
+      path: '/historicos-contabeis/:id/editar',
+      name: 'historico-contabil-editar',
+      component: () => import('../views/HistoricoContabil/FormView.vue'),
+      meta: { title: 'Editar Histórico Contábil', requiresAuth: true }
+    },
+
+    // Plano de Contas
+    {
+      path: '/plano-contas',
+      name: 'plano-contas',
+      component: () => import('../views/PlanoConta/ListaView.vue'),
+      meta: { title: 'Plano de Contas', requiresAuth: true }
+    },
+    {
+      path: '/plano-contas/novo',
+      name: 'plano-conta-novo',
+      component: () => import('../views/PlanoConta/FormView.vue'),
+      meta: { title: 'Nova Conta Contábil', requiresAuth: true }
+    },
+    {
+      path: '/plano-contas/:id/editar',
+      name: 'plano-conta-editar',
+      component: () => import('../views/PlanoConta/FormView.vue'),
+      meta: { title: 'Editar Conta Contábil', requiresAuth: true }
+    },
+
+    // Lançamento Contábil
+    {
+      path: '/lancamentos-contabeis',
+      name: 'lancamentos-contabeis',
+      component: () => import('../views/LanctoContabil/ListaView.vue'),
+      meta: { title: 'Lançamentos Contábeis', requiresAuth: true }
+    },
+    {
+      path: '/lancamentos-contabeis/novo',
+      name: 'lancamento-contabil-novo',
+      component: () => import('../views/LanctoContabil/FormView.vue'),
+      meta: { title: 'Novo Lançamento Contábil', requiresAuth: true }
+    },
+    {
+      path: '/lancamentos-contabeis/:id',
+      name: 'lancamento-contabil-detalhes',
+      component: () => import('../views/LanctoContabil/DetalhesView.vue'),
+      meta: { title: 'Detalhes Lançamento Contábil', requiresAuth: true }
+    },
+    {
+      path: '/lancamentos-contabeis/:id/editar',
+      name: 'lancamento-contabil-editar',
+      component: () => import('../views/LanctoContabil/FormView.vue'),
+      meta: { title: 'Editar Lançamento Contábil', requiresAuth: true }
     }
   ]
 })

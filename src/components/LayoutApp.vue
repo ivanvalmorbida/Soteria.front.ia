@@ -36,6 +36,61 @@
               >
                 Pessoas Jurídicas
               </router-link>
+
+              <!-- Contábil dropdown -->
+              <div class="relative" @mouseleave="showContabilMenu = false">
+                <button
+                  type="button"
+                  @click="showContabilMenu = !showContabilMenu"
+                  @mouseenter="showContabilMenu = true"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-dark-700 text-dark-300 hover:text-dark-100 flex items-center"
+                  :class="{ 'bg-primary-600/20 text-primary-400': isContabilActive }"
+                >
+                  Contábil
+                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <transition name="slide">
+                  <div
+                    v-if="showContabilMenu"
+                    class="absolute left-0 mt-1 w-64 bg-dark-800 border border-dark-700 rounded-lg shadow-xl z-50 py-2"
+                  >
+                    <router-link
+                      to="/lancamentos-contabeis"
+                      class="block px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 hover:text-primary-400"
+                      active-class="bg-primary-600/20 text-primary-400"
+                      @click="showContabilMenu = false"
+                    >
+                      Lançamentos Contábeis
+                    </router-link>
+                    <router-link
+                      to="/plano-contas"
+                      class="block px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 hover:text-primary-400"
+                      active-class="bg-primary-600/20 text-primary-400"
+                      @click="showContabilMenu = false"
+                    >
+                      Plano de Contas
+                    </router-link>
+                    <router-link
+                      to="/centros-custo"
+                      class="block px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 hover:text-primary-400"
+                      active-class="bg-primary-600/20 text-primary-400"
+                      @click="showContabilMenu = false"
+                    >
+                      Centros de Custo
+                    </router-link>
+                    <router-link
+                      to="/historicos-contabeis"
+                      class="block px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 hover:text-primary-400"
+                      active-class="bg-primary-600/20 text-primary-400"
+                      @click="showContabilMenu = false"
+                    >
+                      Históricos Contábeis
+                    </router-link>
+                  </div>
+                </transition>
+              </div>
             </nav>
           </div>
 
@@ -99,6 +154,41 @@
               Pessoas Jurídicas
             </router-link>
             <div class="border-t border-dark-700 my-2 pt-2">
+              <p class="px-4 py-1 text-xs uppercase text-dark-400 font-semibold">Contábil</p>
+              <router-link
+                to="/lancamentos-contabeis"
+                @click="toggleMobileMenu"
+                class="block px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-700 text-dark-300"
+                active-class="bg-primary-600/20 text-primary-400"
+              >
+                Lançamentos Contábeis
+              </router-link>
+              <router-link
+                to="/plano-contas"
+                @click="toggleMobileMenu"
+                class="block px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-700 text-dark-300"
+                active-class="bg-primary-600/20 text-primary-400"
+              >
+                Plano de Contas
+              </router-link>
+              <router-link
+                to="/centros-custo"
+                @click="toggleMobileMenu"
+                class="block px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-700 text-dark-300"
+                active-class="bg-primary-600/20 text-primary-400"
+              >
+                Centros de Custo
+              </router-link>
+              <router-link
+                to="/historicos-contabeis"
+                @click="toggleMobileMenu"
+                class="block px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-700 text-dark-300"
+                active-class="bg-primary-600/20 text-primary-400"
+              >
+                Históricos Contábeis
+              </router-link>
+            </div>
+            <div class="border-t border-dark-700 my-2 pt-2">
               <div class="px-4 py-2">
                 <p class="text-sm font-medium text-dark-100">{{ authStore.userName }}</p>
                 <p class="text-xs text-dark-400">{{ userTypeLabel }}</p>
@@ -138,19 +228,31 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'vue-toastification'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const toast = useToast()
 
 const showMobileMenu = ref(false)
+const showContabilMenu = ref(false)
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
 }
+
+const isContabilActive = computed(() => {
+  const p = route.path
+  return (
+    p.startsWith('/lancamentos-contabeis') ||
+    p.startsWith('/plano-contas') ||
+    p.startsWith('/centros-custo') ||
+    p.startsWith('/historicos-contabeis')
+  )
+})
 
 const userInitials = computed(() => {
   if (!authStore.userName) return 'U'
