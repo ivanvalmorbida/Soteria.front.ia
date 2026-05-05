@@ -1,285 +1,210 @@
 # Sistema de Cadastro - Frontend Vue.js
 
-Frontend moderno e responsivo desenvolvido em Vue.js 3 para integração com o Sistema de Cadastro API.
-
-## 🎨 Características
-
-- ✅ **Vue.js 3** com Composition API
-- ✅ **Vue Router** para navegação
-- ✅ **Pinia** para gerenciamento de estado
-- ✅ **Tailwind CSS** para estilização
-- ✅ **Axios** para requisições HTTP
-- ✅ **VeeValidate + Yup** para validação de formulários
-- ✅ **Vue Toastification** para notificações
-- ✅ **Design moderno** e profissional
-- ✅ **Totalmente responsivo**
-- ✅ **Animações suaves**
-- ✅ **Tema personalizado** com gradientes e efeitos
+Frontend desenvolvido em Vue.js 3 (Composition API) para o Sistema de Cadastro, com autenticação JWT, cadastro de pessoas físicas e jurídicas e dados auxiliares (CEP, endereços, profissões, etc.).
 
 ## 🚀 Tecnologias
 
 - Vue.js 3.4
-- Vite 5.2
+- Vite 7.3
 - Vue Router 4.3
 - Pinia 2.1
 - Axios 1.6
+- VeeValidate 4.12 + Yup 1.4
+- Vue Toastification 2.0
 - Tailwind CSS 3.4
-- VeeValidate 4.12
-- Yup 1.4
 
 ## 📋 Pré-requisitos
 
-- Node.js 18+ ou superior
-- npm ou yarn
-- Backend API rodando (veja o projeto backend)
+- Node.js 18+
+- npm
+- Backend API em execução (porta padrão `64934`)
 
 ## 🔧 Instalação
-
-### 1. Clone o repositório
-
-```bash
-cd frontend-vuejs
-```
-
-### 2. Instale as dependências
 
 ```bash
 npm install
 ```
 
-### 3. Configure as variáveis de ambiente
+### Variáveis de ambiente
 
-Copie o arquivo `.env.example` para `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Edite o arquivo `.env` e configure a URL da API:
+Copie `.env.example` para `.env` e ajuste a URL da API se necessário:
 
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:64934/api
 ```
 
-### 4. Execute o projeto em modo de desenvolvimento
+> O Vite também faz proxy de `/api` para `http://localhost:64934` em modo de desenvolvimento (configurado em `vite.config.js`).
+
+## 📝 Scripts
 
 ```bash
-npm run dev
+npm run dev       # Dev server em http://localhost:3000
+npm run build     # Build de produção (saída em dist/)
+npm run preview   # Preview do build
+npm run lint      # ESLint com auto-fix em arquivos .vue/.js
 ```
-
-A aplicação estará disponível em `http://localhost:3000`
-
-## 📦 Build para Produção
-
-```bash
-npm run build
-```
-
-Os arquivos otimizados serão gerados na pasta `dist/`.
 
 ## 🎯 Funcionalidades
 
+### Autenticação
+- ✅ Login e cadastro de usuário
+- ✅ Token JWT persistido em `localStorage`
+- ✅ Guarda de rotas (`requiresAuth` / `public`)
+- ✅ Redirecionamento automático em caso de 401
+- ✅ Troca de senha
+
 ### Pessoas Físicas
-- ✅ Listagem com busca
-- ✅ Cadastro completo
-- ✅ Edição de dados
-- ✅ Visualização detalhada
-- ✅ Exclusão com confirmação
-- ✅ Validação de CPF
+- ✅ Listagem e busca
+- ✅ Cadastro, edição, visualização e exclusão
+- ✅ Validação e máscara de CPF
 - ✅ Busca de CEP automática
-- ✅ Múltiplos telefones e e-mails
+- ✅ Estado civil, nacionalidade e profissão (CBO)
+- ✅ UF/Cidade de nascimento e cônjuge
+- ✅ Múltiplos telefones e endereços eletrônicos
 
 ### Pessoas Jurídicas
-- ✅ Listagem de empresas
-- ✅ Cadastro completo
-- ✅ Edição de dados
-- ✅ Visualização detalhada
-- ✅ Validação de CNPJ
-- ✅ Campo de representante (código da pessoa)
-- ✅ Exibição do nome do representante
-- ✅ Múltiplos contatos
+- ✅ Listagem e busca
+- ✅ Cadastro, edição, visualização e exclusão
+- ✅ Validação e máscara de CNPJ (alfanumérico)
+- ✅ Atividade econômica (subsetor)
+- ✅ Representante legal (busca de pessoa física)
+- ✅ Múltiplos telefones e endereços eletrônicos
 
 ## 📁 Estrutura do Projeto
 
 ```
-frontend-vuejs/
-├── public/              # Arquivos públicos
-├── src/
-│   ├── assets/         # Arquivos estáticos (CSS, imagens)
-│   │   └── main.css    # Estilos globais com Tailwind
-│   ├── components/     # Componentes reutilizáveis
-│   │   ├── LayoutApp.vue       # Layout principal
-│   │   └── LoadingSpinner.vue  # Componente de loading
-│   ├── router/         # Configuração de rotas
-│   │   └── index.js
-│   ├── services/       # Serviços de API
-│   │   ├── api.js                      # Cliente Axios
-│   │   ├── pessoaFisicaService.js      # API Pessoa Física
-│   │   ├── pessoaJuridicaService.js    # API Pessoa Jurídica
-│   │   └── auxiliaryService.js         # APIs auxiliares
-│   ├── views/          # Páginas da aplicação
-│   │   ├── HomeView.vue
-│   │   ├── PessoaFisica/
-│   │   │   ├── ListaView.vue
-│   │   │   ├── FormView.vue
-│   │   │   └── DetalhesView.vue
-│   │   └── PessoaJuridica/
-│   │       ├── ListaView.vue
-│   │       ├── FormView.vue
-│   │       └── DetalhesView.vue
-│   ├── App.vue         # Componente raiz
-│   └── main.js         # Ponto de entrada
-├── index.html
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-└── postcss.config.js
+src/
+├── assets/
+│   └── main.css                # Tailwind + utilitários globais
+├── components/
+│   ├── LayoutApp.vue           # Layout principal (autenticado)
+│   └── LoadingSpinner.vue
+├── router/
+│   └── index.js                # Rotas + guarda de autenticação
+├── services/
+│   ├── api.js                  # Instância Axios (interceptors, baseURL)
+│   ├── authService.js          # /auth/*
+│   ├── pessoaFisicaService.js
+│   ├── pessoaJuridicaService.js
+│   └── auxiliaryService.js     # estados, cidades, CEP, CBO, etc.
+├── stores/
+│   └── auth.js                 # Store Pinia (user, token, isAuthenticated)
+├── views/
+│   ├── HomeView.vue
+│   ├── LoginView.vue
+│   ├── RegisterView.vue
+│   ├── PessoaFisica/
+│   │   ├── ListaView.vue
+│   │   ├── FormView.vue        # Reutilizada para novo e edição
+│   │   └── DetalhesView.vue
+│   └── PessoaJuridica/
+│       ├── ListaView.vue
+│       ├── FormView.vue
+│       └── DetalhesView.vue
+├── App.vue
+└── main.js
 ```
+
+Alias de path: `@` resolve para `src/`.
+
+## 🛣️ Rotas
+
+| Caminho | Acesso | Descrição |
+| --- | --- | --- |
+| `/login` | público | Login |
+| `/register` | público | Cadastro de usuário |
+| `/` | autenticado | Home |
+| `/pessoas-fisicas` | autenticado | Lista |
+| `/pessoas-fisicas/novo` | autenticado | Novo cadastro |
+| `/pessoas-fisicas/:id` | autenticado | Detalhes |
+| `/pessoas-fisicas/:id/editar` | autenticado | Edição |
+| `/pessoas-juridicas` | autenticado | Lista |
+| `/pessoas-juridicas/novo` | autenticado | Novo cadastro |
+| `/pessoas-juridicas/:id` | autenticado | Detalhes |
+| `/pessoas-juridicas/:id/editar` | autenticado | Edição |
+
+## 🔌 Integração com o Backend
+
+- **Base URL:** definida em `.env` como `VITE_API_URL` (padrão `http://localhost:64934/api`)
+- **Proxy de desenvolvimento:** `/api` → `http://localhost:64934` (`vite.config.js`)
+- **Interceptors** (`src/services/api.js`):
+  - Anexa `Authorization: Bearer <token>` quando há token em `localStorage`
+  - Em resposta 401, limpa o token e redireciona para `/login`
+
+### Endpoints utilizados
+
+#### Autenticação
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `GET  /api/auth/me`
+- `POST /api/auth/change-password`
+
+#### Pessoa Física
+- `GET    /api/pessoafisica`
+- `GET    /api/pessoafisica/:id`
+- `GET    /api/pessoafisica/nome/:nome` — busca por nome
+- `POST   /api/pessoafisica`
+- `PUT    /api/pessoafisica/:id`
+- `DELETE /api/pessoa/:id`
+- `GET    /api/pessoa/search?termo=xxx`
+
+#### Pessoa Jurídica
+- `GET    /api/pessoajuridica`
+- `GET    /api/pessoajuridica/:id`
+- `POST   /api/pessoajuridica`
+- `PUT    /api/pessoajuridica/:id`
+- `DELETE /api/pessoa/:id`
+
+#### Dados auxiliares
+- `GET /api/estado`
+- `GET /api/cidade/estado/:id`
+- `GET /api/cep/:cep`
+- `GET /api/tipotelefone`
+- `GET /api/tipoenderecoeletronico`
+- `GET /api/estadocivil`
+- `GET /api/nacionalidade`
+- `GET /api/cbo` — profissões
+- `GET /api/cbo/descricao/:descricao`
+- `GET /api/endereco/nome/:nome`
+- `GET /api/bairro/nome/:nome`
+- `GET /api/atividadeeconomicasubsetor`
 
 ## 🎨 Design System
 
-### Cores Principais
-
-- **Primary**: Azul (tons de #0ea5e9)
-- **Secondary**: Roxo (tons de #d946ef)
-- **Dark**: Cinzas neutros para texto e fundos
+### Cores
+- **Primary:** azul (`#0ea5e9`)
+- **Secondary:** roxo (`#d946ef`)
+- **Dark:** cinzas neutros para fundo e texto
 
 ### Tipografia
+- **Sans:** DM Sans
+- **Mono:** JetBrains Mono
 
-- **Fonte Principal**: DM Sans (sans-serif)
-- **Fonte Mono**: JetBrains Mono (monospace)
-
-### Componentes Personalizados
-
-- `.btn-primary` - Botão primário com gradiente
-- `.btn-secondary` - Botão secundário neutro
-- `.btn-outline` - Botão com borda
-- `.btn-danger` - Botão de ação destrutiva
-- `.card` - Card com sombra e bordas arredondadas
-- `.input-field` - Input estilizado
-- `.badge-*` - Badges coloridos
-
-## 🔌 Integração com Backend
-
-O frontend está configurado para se comunicar com a API através do Axios. As configurações estão em:
-
-- **Base URL**: Definida em `.env` como `VITE_API_URL`
-- **Proxy**: Configurado no `vite.config.js` para redirecionar `/api` para o backend
-- **Interceptors**: Configurados em `src/services/api.js` para:
-  - Adicionar token de autenticação (se disponível)
-  - Tratar erros 401 (não autorizado)
-  - Redirecionar para login quando necessário
-
-### Endpoints Utilizados
-
-#### Pessoa Física
-- `GET /api/pessoafisica` - Listar todas
-- `GET /api/pessoafisica/:id` - Buscar por ID
-- `POST /api/pessoafisica` - Criar nova
-- `PUT /api/pessoafisica/:id` - Atualizar
-- `DELETE /api/pessoa/:id` - Excluir
-- `GET /api/pessoa/search?termo=xxx` - Buscar
-
-#### Pessoa Jurídica
-- `GET /api/pessoajuridica` - Listar todas
-- `GET /api/pessoajuridica/:id` - Buscar por ID
-- `POST /api/pessoajuridica` - Criar nova
-- `PUT /api/pessoajuridica/:id` - Atualizar
-- `DELETE /api/pessoa/:id` - Excluir
-
-#### Dados Auxiliares
-- `GET /api/estado` - Listar estados
-- `GET /api/cidade/estado/:id` - Listar cidades por estado
-- `GET /api/cep/:cep` - Buscar CEP
-- `GET /api/tipotelefone` - Tipos de telefone
-- `GET /api/tipoenderecoeletronico` - Tipos de endereço eletrônico
-
-## 🚦 Estados e Loading
-
-O aplicativo possui estados de loading para todas as operações assíncronas:
-
-- **Loading Spinner**: Exibido durante carregamento de dados
-- **Skeleton Screens**: Disponíveis para melhor UX
-- **Toasts**: Notificações de sucesso, erro e informação
-
-## 🔐 Autenticação (Preparado)
-
-O sistema está preparado para autenticação JWT:
-
-- Interceptor Axios já configurado
-- LocalStorage para armazenar token
-- Redirecionamento automático em caso de 401
+### Classes utilitárias (em `src/assets/main.css`)
+- `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-danger`
+- `.card`
+- `.input-field`
+- `.badge-*`
 
 ## 📱 Responsividade
 
-O frontend é totalmente responsivo, adaptando-se a:
-
-- 📱 Mobile (< 768px)
-- 💻 Tablet (768px - 1024px)
-- 🖥️ Desktop (> 1024px)
-
-## 🎭 Animações
-
-Todas as páginas e componentes possuem animações suaves:
-
-- Fade in ao carregar páginas
-- Slide up para modais
-- Hover effects em botões e cards
-- Transições entre rotas
-
-## 🐛 Tratamento de Erros
-
-- Toast notifications para erros da API
-- Validação de formulários em tempo real
-- Mensagens amigáveis ao usuário
-- Console logs para debug (em desenvolvimento)
-
-## 📝 Scripts Disponíveis
-
-```bash
-# Desenvolvimento
-npm run dev
-
-# Build para produção
-npm run build
-
-# Preview do build
-npm run preview
-
-# Lint (se configurado)
-npm run lint
-```
+Layout adaptável para mobile, tablet e desktop.
 
 ## 🌐 Navegadores Suportados
 
-- Chrome (últimas 2 versões)
-- Firefox (últimas 2 versões)
-- Safari (últimas 2 versões)
-- Edge (últimas 2 versões)
+Chrome, Firefox, Safari e Edge (últimas 2 versões).
 
 ## 🤝 Contribuindo
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Crie uma branch (`git checkout -b feature/minha-feature`)
+2. Commit das mudanças (`git commit -m 'feat: minha feature'`)
+3. Push (`git push origin feature/minha-feature`)
+4. Abra um Pull Request
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
-
-## 👨‍💻 Autor
-
-Desenvolvido para integração com o Sistema de Cadastro API.
-
-## 🙏 Agradecimentos
-
-- Vue.js Team
-- Tailwind CSS Team
-- Vite Team
-- Comunidade Open Source
+MIT.
 
 ---
 
-**Nota**: Certifique-se de que o backend está rodando antes de iniciar o frontend para uma experiência completa!
+**Nota:** o backend deve estar em execução para que o frontend funcione integralmente.
