@@ -155,6 +155,32 @@ const router = createRouter({
       name: 'lancamento-contabil-editar',
       component: () => import('../views/LanctoContabil/FormView.vue'),
       meta: { title: 'Editar Lançamento Contábil', requiresAuth: true }
+    },
+
+    // Hospedagem
+    {
+      path: '/hospedagens',
+      name: 'hospedagens',
+      component: () => import('../views/Hospedagem/ListaView.vue'),
+      meta: { title: 'Hospedagens', requiresAuth: true }
+    },
+    {
+      path: '/hospedagens/novo',
+      name: 'hospedagem-novo',
+      component: () => import('../views/Hospedagem/FormView.vue'),
+      meta: { title: 'Nova Hospedagem', requiresAuth: true }
+    },
+    {
+      path: '/hospedagens/:id',
+      name: 'hospedagem-detalhes',
+      component: () => import('../views/Hospedagem/DetalhesView.vue'),
+      meta: { title: 'Detalhes Hospedagem', requiresAuth: true }
+    },
+    {
+      path: '/hospedagens/:id/editar',
+      name: 'hospedagem-editar',
+      component: () => import('../views/Hospedagem/FormView.vue'),
+      meta: { title: 'Editar Hospedagem', requiresAuth: true }
     }
   ]
 })

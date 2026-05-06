@@ -88,6 +88,15 @@
                     >
                       Históricos Contábeis
                     </router-link>
+                    <div class="border-t border-dark-700 my-1"></div>
+                    <router-link
+                      to="/hospedagens"
+                      class="block px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 hover:text-primary-400"
+                      active-class="bg-primary-600/20 text-primary-400"
+                      @click="showContabilMenu = false"
+                    >
+                      Hospedagens
+                    </router-link>
                   </div>
                 </transition>
               </div>
@@ -187,6 +196,14 @@
               >
                 Históricos Contábeis
               </router-link>
+              <router-link
+                to="/hospedagens"
+                @click="toggleMobileMenu"
+                class="block px-4 py-2 rounded-lg text-sm font-medium hover:bg-dark-700 text-dark-300"
+                active-class="bg-primary-600/20 text-primary-400"
+              >
+                Hospedagens
+              </router-link>
             </div>
             <div class="border-t border-dark-700 my-2 pt-2">
               <div class="px-4 py-2">
@@ -250,7 +267,8 @@ const isContabilActive = computed(() => {
     p.startsWith('/lancamentos-contabeis') ||
     p.startsWith('/plano-contas') ||
     p.startsWith('/centros-custo') ||
-    p.startsWith('/historicos-contabeis')
+    p.startsWith('/historicos-contabeis') ||
+    p.startsWith('/hospedagens')
   )
 })
 
