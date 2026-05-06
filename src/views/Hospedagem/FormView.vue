@@ -66,9 +66,10 @@
               <label class="block text-sm font-medium text-dark-200 mb-2">Status</label>
               <select v-model="form.status" class="input-field">
                 <option value="">Selecione...</option>
-                <option value="A">Ativa</option>
-                <option value="I">Inativa</option>
-                <option value="C">Cancelada</option>
+                <option value="Ativa">Ativa</option>
+                <option value="Finalizada">Finalizada</option>
+                <option value="Cancelada">Cancelada</option>
+                <option value="Reserva">Reserva</option>
               </select>
             </div>
 
@@ -156,7 +157,7 @@ const form = ref({
   checkout: '',
   diaria: '',
   total: '',
-  status: 'A',
+  status: 'Ativa',
   observacoes: ''
 })
 
@@ -218,7 +219,7 @@ const loadItem = async () => {
       checkout: data.checkout ? formatDateTimeLocal(data.checkout) : '',
       diaria: data.diaria ?? '',
       total: data.total ?? '',
-      status: data.status ?? 'A',
+      status: data.status ?? 'Ativa',
       observacoes: data.observacoes ?? ''
     }
     if (data.pessoa) {

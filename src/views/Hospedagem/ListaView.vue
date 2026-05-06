@@ -180,10 +180,7 @@ const formatCurrency = (value) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 }
 
-const getStatusLabel = (status) => {
-  const labels = { 'A': 'Ativa', 'I': 'Inativa', 'C': 'Cancelada' }
-  return labels[status] || status || '-'
-}
+const getStatusLabel = (status) => status || '-'
 
 const loadItens = async () => {
   try {
