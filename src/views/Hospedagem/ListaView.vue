@@ -15,28 +15,31 @@
       </div>
 
       <div class="card p-6 mb-8">
-        <div class="flex gap-4">
+        <div class="flex flex-col md:flex-row gap-4">
           <div class="flex-1">
             <input
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por nome da pessoa..."
               class="input-field"
-              @keyup.enter="handleSearch"
             />
           </div>
-          <button @click="handleSearch" class="btn-primary">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-          <button v-if="searchTerm" @click="clearSearch" class="btn-secondary">Limpar</button>
+          <div class="md:w-56">
+            <select v-model="statusFilter" class="input-field">
+              <option value="">Todos os status</option>
+              <option value="Ativa">Ativa</option>
+              <option value="Finalizada">Finalizada</option>
+              <option value="Cancelada">Cancelada</option>
+              <option value="Reserva">Reserva</option>
+            </select>
+          </div>
+          <button v-if="searchTerm || statusFilter !== 'Ativa'" @click="clearFilters" class="btn-secondary">Limpar</button>
         </div>
       </div>
 
       <LoadingSpinner v-if="loading" />
 
-      <div v-else-if="itens.length > 0" class="card overflow-hidden">
+      <div v-else-if="itensFiltrados.length > 0" class="card overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
@@ -52,7 +55,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in itens" :key="item.codigo" class="hover:bg-dark-800 transition-colors">
+              <tr v-for="item in itensFiltrados" :key="item.codigo" class="hover:bg-dark-800 transition-colors">
                 <td class="table-cell">
                   <span class="font-mono text-sm font-semibold text-primary-600">#{{ item.codigo }}</span>
                 </td>
@@ -156,7 +159,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import LayoutApp from '@/components/LayoutApp.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -166,9 +169,19 @@ const toast = useToast()
 const itens = ref([])
 const loading = ref(false)
 const searchTerm = ref('')
+const statusFilter = ref('Ativa')
 const showDeleteModal = ref(false)
 const itemToDelete = ref(null)
 const deleting = ref(false)
+
+const itensFiltrados = computed(() => {
+  const termo = searchTerm.value.trim().toLowerCase()
+  return itens.value.filter(item => {
+    if (statusFilter.value && item.status !== statusFilter.value) return false
+    if (termo && !(item.pessoaNome || '').toLowerCase().includes(termo)) return false
+    return true
+  })
+})
 
 const formatDate = (date) => {
   if (!date) return null
@@ -194,29 +207,9 @@ const loadItens = async () => {
   }
 }
 
-const handleSearch = async () => {
-  if (!searchTerm.value.trim()) {
-    loadItens()
-    return
-  }
-  try {
-    loading.value = true
-    itens.value = await hospedagemService.getAll()
-    const term = searchTerm.value.toLowerCase()
-    itens.value = itens.value.filter(item =>
-      item.pessoaNome && item.pessoaNome.toLowerCase().includes(term)
-    )
-  } catch (error) {
-    toast.error('Erro ao buscar')
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const clearSearch = () => {
+const clearFilters = () => {
   searchTerm.value = ''
-  loadItens()
+  statusFilter.value = 'Ativa'
 }
 
 const confirmDelete = (item) => {

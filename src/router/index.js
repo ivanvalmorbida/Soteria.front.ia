@@ -186,7 +186,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  document.title = to.meta.title ? `${to.meta.title} | Sistema de Cadastro` : 'Sistema de Cadastro'
+  document.title = to.meta.title ? `${to.meta.title} | SoteriaSoftware` : 'SoteriaSoftware'
   
   const authStore = useAuthStore()
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
