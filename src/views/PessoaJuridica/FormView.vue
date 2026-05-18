@@ -700,7 +700,7 @@ const handleSubmit = async () => {
     }
     router.push('/pessoas-juridicas')
   } catch (error) {
-    toast.error('Erro ao salvar empresa')
+    toast.error(error?.response?.data?.message || 'Erro ao salvar empresa')
     console.error(error)
   } finally {
     saving.value = false

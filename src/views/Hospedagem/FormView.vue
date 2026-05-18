@@ -268,7 +268,7 @@ const handleSubmit = async () => {
     }
     router.push('/hospedagens')
   } catch (error) {
-    toast.error('Erro ao salvar')
+    toast.error(error?.response?.data?.message || 'Erro ao salvar')
     console.error(error)
   } finally {
     saving.value = false

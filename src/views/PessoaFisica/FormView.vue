@@ -729,7 +729,7 @@ const handleSubmit = async () => {
     }
     router.push('/pessoas-fisicas')
   } catch (error) {
-    toast.error('Erro ao salvar pessoa')
+    toast.error(error?.response?.data?.message || 'Erro ao salvar pessoa')
     console.error(error)
   } finally {
     saving.value = false
