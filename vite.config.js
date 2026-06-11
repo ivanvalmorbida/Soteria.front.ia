@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import "dotenv/config";
 
 export default defineConfig({
   plugins: [vue()],
@@ -13,7 +14,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://162.240.230.59:64934',
+        target: process.env.BACKEND,
         changeOrigin: true,
         secure: false
       }
