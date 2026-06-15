@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/api/*"
-  to = "http://mielina.ddns:5000/api/:splat"
+  to = "http://mielina.ddns.net:5000/api/:splat"
   status = 200
   force = true
 
