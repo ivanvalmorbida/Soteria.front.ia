@@ -650,9 +650,15 @@ const loadPessoa = async () => {
     const data = await pessoaJuridicaService.getById(route.params.id)
     form.value = {
       ...data,
-      endereco: data.endereco ?? null,
-      telefones: data.telefones?.length > 0 ? data.telefones : [{ telefone: '', tipo: null, descricao: '' }],
-      enderecosEletronicos: data.enderecosEletronicos?.length > 0 ? data.enderecosEletronicos : [{ endereco: '', tipo: null, descricao: '' }]
+      endereco: data.endereco?.codigo ?? data.endereco?.id ?? data.endereco ?? null,
+      bairro: data.bairro?.codigo ?? data.bairro?.id ?? data.bairro ?? null,
+      representante: data.representante?.codigo ?? data.representante?.id ?? data.representante ?? null,
+      telefones: data.telefones?.length > 0
+        ? data.telefones.map(t => ({ ...t, tipo: t.tipo?.codigo ?? t.tipo?.id ?? t.tipo }))
+        : [{ telefone: '', tipo: null, descricao: '' }],
+      enderecosEletronicos: data.enderecosEletronicos?.length > 0
+        ? data.enderecosEletronicos.map(e => ({ ...e, tipo: e.tipo?.codigo ?? e.tipo?.id ?? e.tipo }))
+        : [{ endereco: '', tipo: null, descricao: '' }]
     }
     if (form.value.cnpj) maskCnpj()
     if (form.value.cep) maskCep()
