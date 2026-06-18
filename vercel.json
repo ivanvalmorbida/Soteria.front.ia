@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://162.240.230.59:64934/api/:path*"
+      "destination": "http://mielina.ddns.net:5000/api/:path*"
     },
     {
       "source": "/(.*)",
