@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/api/*"
-  to = "http://soteriasoft-api.us-east-1.elasticbeanstalk.com/api/:splat"
+  to = "http://sotreriasoft.eba-skn3bj7h.us-east-1.elasticbeanstalk.com/api/:splat"
   status = 200
   force = true
 

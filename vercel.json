@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://soteriasoft-api.us-east-1.elasticbeanstalk.com/api/:path*"
+      "destination": "http://sotreriasoft.eba-skn3bj7h.us-east-1.elasticbeanstalk.com/api/:path*"
     },
     {
       "source": "/(.*)",
