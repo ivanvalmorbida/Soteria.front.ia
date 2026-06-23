@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/api/*"
-  to = "http://soteriasoftware-env.eba-mvxhuyra.sa-east-1.elasticbeanstalk.com/api/:splat"
+  to = "https://soteria-backend-node-sqlite.vercel.app/api/:splat"
   status = 200
   force = true
 
